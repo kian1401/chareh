@@ -13,4 +13,9 @@ fi
 flutter config --enable-web >/dev/null 2>&1 || true
 flutter pub get
 flutter build web --release --no-tree-shake-icons --no-wasm-dry-run
-echo "✅ بیلد وب آماده: build/web"
+
+# رندر ممکن است publishPath را "public" نگه دارد — مطمئن می‌شویم هر دو مسیر سرو شوند
+mkdir -p public
+rm -rf public/*
+cp -r build/web/. public/
+echo "✅ بیلد وب آماده: build/web + public/"
