@@ -16,6 +16,11 @@ class AuthState extends ChangeNotifier {
       user = u;
       notifyListeners();
     });
+    // 🔗 حساب متخصص ← پروفایل متخصص (پیوند userId)
+    _subProviders = RepoHub.instance.providers.watchAll().listen((ps) {
+      _linkedProviderId = ps.where((p) => p.userId != null && p.userId == user?.id).firstOrNull?.id;
+      notifyListeners();
+    });
   }
 
   AppUser? user;
@@ -27,21 +32,40 @@ class AuthState extends ChangeNotifier {
   StreamSubscription<AppUser?>? _sub;
 
   bool get loggedIn => user != null;
+  bool get isAdmin => user?.role == UserRole.admin;
 
-  /// اتصال دموی کاربر سرویس‌دهنده به پروفایل «حسین اکبری»
-  String? get linkedProviderId =>
-      (user != null && user!.role == UserRole.provider) ? 'p7' : null;
+  /// 👀 پیش‌نمایش پنل متخصص از داخل ادمین (impersonation)
+  String? _previewProviderId;
+  String? _linkedProviderId;
+  StreamSubscription<List<ProviderProfile>>? _subProviders;
+
+  String? get linkedProviderId => _linkedProviderId;
+  String? get effectiveProviderId => _previewProviderId ?? _linkedProviderId;
+
+  /// آیا ادمین در حال مشاهدهٔ پنل یک متخصص است؟
+  bool get isPreviewingProvider => _previewProviderId != null;
+
+  void enterProviderPreview(String providerId) {
+    _previewProviderId = providerId;
+    notifyListeners();
+  }
+
+  void exitProviderPreview() {
+    _previewProviderId = null;
+    notifyListeners();
+  }
 
   void setPortal(UserRole role) {
     portal = role;
     notifyListeners();
   }
 
-  Future<void> sendOtp(String phone) =>
+  /// برگشت: کد صادرشده (حالت تست — روی صفحه نمایش داده می‌شود)
+  Future<String> sendOtp(String phone) =>
       RepoHub.instance.auth.sendOtp(phone: phone, role: portal);
 
-  Future<AppUser> verifyOtp(String phone, String code) =>
-      RepoHub.instance.auth.verifyOtp(phone: phone, code: code);
+  Future<AppUser> verifyOtp(String phone, String code, {String? referralCode}) =>
+      RepoHub.instance.auth.verifyOtp(phone: phone, code: code, referralCode: referralCode);
 
   Future<AppUser> demoLogin(UserRole role) =>
       RepoHub.instance.auth.signInDemo(role);
@@ -59,6 +83,7 @@ class AuthState extends ChangeNotifier {
   @override
   void dispose() {
     _sub?.cancel();
+    _subProviders?.cancel();
     super.dispose();
   }
 }

@@ -1,30 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// پالت برند «چاره»
+/// پالت گرم و صمیمی «چاره» — الهام از اپ‌های موفق خدمات منزل (کرم + نارنجی آتشین + هایلایت عسلی)
 class AppColors {
-  static const primary = Color(0xFF6D28D9); // بنفش اصلی
-  static const primaryDark = Color(0xFF5B21B6);
-  static const accent = Color(0xFFF59E0B); // کهربایی
-  static const bg = Color(0xFFF7F7FA);
+  static const primary = Color(0xFFE85C24); // نارنجی گرم برند
+  static const primaryDark = Color(0xFFC2451A);
+  static const accent = Color(0xFFF5A524); // عسلی آفتابی
+  static const bg = Color(0xFFFFF8F2); // کرم گرمایشی
   static const surface = Colors.white;
-  static const text = Color(0xFF1F2937);
-  static const subtext = Color(0xFF6B7280);
-  static const success = Color(0xFF059669);
-  static const danger = Color(0xFFDC2626);
-  static const info = Color(0xFF2563EB);
+  static const text = Color(0xFF2A2019); // قهوه‌ای سوخته
+  static const subtext = Color(0xFF7C6F63);
+  static const success = Color(0xFF0E9F6E);
+  static const danger = Color(0xFFE02424);
+  static const info = Color(0xFF2D7DD2);
   static const warning = Color(0xFFD97706);
-  static const border = Color(0xFFE9E9EF);
+  static const border = Color(0xFFF1E3D5); // کرمی ملایم
 
   static const gradients = <List<Color>>[
-    [Color(0xFF8B5CF6), Color(0xFF6D28D9)],
-    [Color(0xFF0EA5E9), Color(0xFF0369A1)],
-    [Color(0xFFF59E0B), Color(0xFFB45309)],
-    [Color(0xFF10B981), Color(0xFF047857)],
-    [Color(0xFFEC4899), Color(0xFFB21B68)],
-    [Color(0xFFF97316), Color(0xFFC2410C)],
-    [Color(0xFF14B8A6), Color(0xFF0F766E)],
-    [Color(0xFF6366F1), Color(0xFF4338CA)],
+    [Color(0xFFFF9A62), Color(0xFFE85C24)], // غروب
+    [Color(0xFFF5A524), Color(0xFFC2451A)], // عسل به آتش
+    [Color(0xFFFB8B7D), Color(0xFFCF4B64)], // کورال
+    [Color(0xFFFBC54D), Color(0xFFB7791F)], // کهربا
+    [Color(0xFF7FD3C1), Color(0xFF0E8474)], // فیروزهٔ گرم
+    [Color(0xFFFF7E5F), Color(0xFFB83A2E)], // پیره‌ای
+    [Color(0xFFD9A05B), Color(0xFF8C5A2B)], // مسی
+    [Color(0xFF6D86F0), Color(0xFF4338CA)], // تک‌رنگ سرد برای تنوع
   ];
 
   static List<Color> gradientFor(String seed) =>
@@ -34,7 +34,7 @@ class AppColors {
 class AppTheme {
   static ThemeData get light {
     final textTheme = GoogleFonts.vazirmatnTextTheme();
-    const radius = 14.0;
+    const radius = 16.0;
 
     return ThemeData(
       useMaterial3: true,
@@ -62,7 +62,7 @@ class AppTheme {
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           side: const BorderSide(color: AppColors.border),
         ),
       ),
@@ -70,12 +70,20 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
-          minimumSize: const Size.fromHeight(50),
+          minimumSize: const Size.fromHeight(52),
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(radius)),
           textStyle: GoogleFonts.getFont('Vazirmatn',
-              fontSize: 15, fontWeight: FontWeight.w700),
+              fontSize: 15, fontWeight: FontWeight.w800),
           elevation: 0,
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14)),
+          textStyle: GoogleFonts.getFont('Vazirmatn',
+              fontSize: 13.5, fontWeight: FontWeight.w800),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -91,7 +99,7 @@ class AppTheme {
         filled: true,
         fillColor: AppColors.surface,
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radius),
           borderSide: const BorderSide(color: AppColors.border),
@@ -100,21 +108,25 @@ class AppTheme {
           borderRadius: BorderRadius.circular(radius),
           borderSide: const BorderSide(color: AppColors.border),
         ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radius),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.6),
+        ),
       ),
       chipTheme: ChipThemeData(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         side: const BorderSide(color: AppColors.border),
         backgroundColor: AppColors.surface,
       ),
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.surface,
-        indicatorColor: AppColors.primary.withValues(alpha: .12),
+        indicatorColor: AppColors.primary.withValues(alpha: .14),
         labelTextStyle: WidgetStatePropertyAll(
           GoogleFonts.getFont('Vazirmatn',
               fontSize: 11.5, fontWeight: FontWeight.w600),

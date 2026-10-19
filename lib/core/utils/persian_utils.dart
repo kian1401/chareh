@@ -74,3 +74,12 @@ String timeAgoFa(DateTime at) {
   if (diff.inDays < 7) return '${toFaDigits(diff.inDays)} روز پیش';
   return '${toFaDigits(diff.inDays ~/ 7)} هفته پیش';
 }
+
+/// ⏰ بازه‌های زمانی پیشنهادی چاره (قابل توسعه در تنظیمات ادمین)
+const charehTimeSlots = <String>[
+  '۸ تا ۱۱ صبح',
+  '۱۱ تا ۱۴',
+  '۱۴ تا ۱۷',
+  '۱۷ تا ۲۰',
+  '۲۰ تا ۲۳',
+];

@@ -60,12 +60,13 @@ class FirebaseAuthRepository implements AuthRepository {
       });
 
   @override
-  Future<void> sendOtp({required String phone, required UserRole role}) async {
-    await _fn.httpsCallable('sendOtp').call({'phone': phone, 'role': role.name});
+  Future<String> sendOtp({required String phone, required UserRole role}) async {
+    final res = await _fn.httpsCallable('sendOtp').call({'phone': phone, 'role': role.name});
+    return (res.data?['code'] ?? '').toString();
   }
 
   @override
-  Future<AppUser> verifyOtp({required String phone, required String code}) async {
+  Future<AppUser> verifyOtp({required String phone, required String code, String? referralCode}) async {
     final res = await _fn
         .httpsCallable('verifyOtp')
         .call({'phone': phone, 'code': code, 'role': null});
@@ -98,14 +99,15 @@ class FirebaseCatalogRepository implements CatalogRepository {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   @override
-  Stream<List<Category>> watchCategories() => _db
-      .collection('categories')
-      .where('active', isEqualTo: true)
+  Stream<List<Category>> watchCategories({bool includeHidden = false}) => (includeHidden
+          ? _db.collection('categories')
+          : _db.collection('categories').where('active', isEqualTo: true))
       .snapshots()
-      .map((q) => q.docs.map((d) => Category.fromJson(d.id, _norm(d.data()))).toList());
+      .map((q) => q.docs.map((d) => Category.fromJson(d.id, _norm(d.data()))).toList())
+      .map((l) { l.sort((a, b) => a.order.compareTo(b.order)); return l; });
 
   @override
-  Stream<List<ServiceItem>> watchServices({String? categoryId, String? query}) {
+  Stream<List<ServiceItem>> watchServices({String? categoryId, String? query, bool includeHidden = false}) {
     Query<Map<String, dynamic>> ref = _db.collection('services');
     if (categoryId != null) ref = ref.where('categoryId', isEqualTo: categoryId);
     // جستجوی متنی در حالت واقعی را Algolia/Elastic انجام می‌دهد؛ اینجا فیلتر سمت کلاینت کافی است
@@ -139,10 +141,25 @@ class FirebaseCatalogRepository implements CatalogRepository {
       .map((q) => q.docs.map((d) => Review.fromJson(d.id, _norm(d.data()))).toList());
 
   @override
-  Stream<List<ProviderProfile>> watchProviders() => _db
-      .collection('providers')
+  Stream<List<ProviderProfile>> watchProviders({bool activeOnly = true}) => (activeOnly
+          ? _db.collection('providers').where('active', isEqualTo: true)
+          : _db.collection('providers'))
       .snapshots()
       .map((q) => q.docs.map((d) => ProviderProfile.fromJson(d.id, _norm(d.data()))).toList());
+
+  @override
+  Stream<List<City>> watchCities({bool activeOnly = true}) => (activeOnly
+          ? _db.collection('cities').where('active', isEqualTo: true)
+          : _db.collection('cities'))
+      .snapshots()
+      .map((q) => q.docs.map((d) => City.fromJson(d.id, _norm(d.data()))).toList());
+
+  @override
+  Future<void> upsertCity(City c) =>
+      _db.collection('cities').doc(c.id).set(c.toJson(), SetOptions(merge: true));
+
+  @override
+  Future<void> deleteCity(String id) => _db.collection('cities').doc(id).delete();
 
   @override
   Future<void> upsertService(ServiceItem s) =>
@@ -174,9 +191,10 @@ class FirebaseBookingRepository implements BookingRepository {
       _col.where('customerId', isEqualTo: customerId).snapshots().map(_map);
 
   @override
-  Stream<List<Booking>> watchProviderRequests() => _col
+  Stream<List<Booking>> watchProviderRequests(String cityId) => _col
       .where('providerId', isNull: true)
       .where('status', isEqualTo: 'pending')
+      .where('cityId', isEqualTo: cityId)
       .snapshots()
       .map(_map);
 
@@ -208,9 +226,15 @@ class FirebaseBookingRepository implements BookingRepository {
       ],
       customerId: customer.id,
       customerName: customer.name,
-      dayLabel: draft.dayLabel,
-      timeSlot: draft.timeSlot!,
+      customerPhone: customer.phone,
+      cityId: draft.cityId,
+      dayLabel: draft.days.join('، '),
+      timeSlot: draft.slots.join('، '),
+      candidateDays: draft.days.toList(),
+      candidateSlots: draft.slots.toList(),
       addressText: '${draft.address!.title} — ${draft.address!.text}',
+      addressLat: draft.address!.lat,
+      addressLng: draft.address!.lng,
       totalPrice: draft.total,
       paymentMethod: draft.paymentMethod,
     ).toJson();
@@ -224,13 +248,17 @@ class FirebaseBookingRepository implements BookingRepository {
   }
 
   @override
-  Future<void> accept(String bookingId, ProviderProfile provider) => _col.doc(bookingId).update({
+  Future<void> accept(String bookingId, ProviderProfile provider, {required String day, required String slot}) =>
+      _col.doc(bookingId).update({
         'providerId': provider.id,
         'providerName': provider.name,
         'providerEmoji': provider.emoji,
+        'confirmedDay': day,
+        'confirmedSlot': slot,
+        'contactRevealed': true,
         'status': 'accepted',
         'timeline': FieldValue.arrayUnion([
-          {'status': 'accepted', 'at': DateTime.now().toIso8601String()}
+          {'status': 'accepted', 'at': DateTime.now().toIso8601String(), 'note': 'زمان نهایی: $day، $slot'}
         ]),
       });
 
@@ -280,6 +308,20 @@ class FirebaseProviderRepository implements ProviderRepository {
       .doc(providerId)
       .snapshots()
       .map((d) => d.exists ? ProviderProfile.fromJson(d.id, _norm(d.data()!)) : null);
+
+  @override
+  Stream<List<ProviderProfile>> watchAll() => _db
+      .collection('providers')
+      .snapshots()
+      .map((q) => q.docs.map((d) => ProviderProfile.fromJson(d.id, _norm(d.data()))).toList());
+
+  @override
+  Future<void> upsertProvider(ProviderProfile p) =>
+      _db.collection('providers').doc(p.id).set(p.toJson(), SetOptions(merge: true));
+
+  @override
+  Future<void> removeProvider(String providerId) =>
+      _db.collection('providers').doc(providerId).update({'active': false, 'online': false});
 
   @override
   Stream<List<EarningEntry>> watchEarnings(String providerId) => _db
@@ -349,8 +391,71 @@ class FirebaseMiscRepository implements MiscRepository {
   }
 
   @override
-  Future<void> addAddress(String userId, {required String title, required String text}) =>
-      _db.collection('users').doc(userId).collection('addresses').add({'title': title, 'text': text, 'isDefault': false});
+  Future<void> addAddress(String userId,
+          {required String title, required String text, double lat = 37.55, double lng = 45.07, String cityId = 'urmia', String plaque = ''}) =>
+      _db.collection('users').doc(userId).collection('addresses').add({
+        'title': title, 'text': text, 'lat': lat, 'lng': lng, 'cityId': cityId, 'plaque': plaque, 'isDefault': false,
+      });
+
+  @override
+  Stream<AppSettings> watchSettings() => _db
+      .collection('settings')
+      .doc('app')
+      .snapshots()
+      .map((d) => d.exists ? AppSettings.fromJson(_norm(d.data()!)) : AppSettings());
+
+  @override
+  Future<void> saveSettings(AppSettings st) =>
+      _db.collection('settings').doc('app').set(st.toJson(), SetOptions(merge: true));
+
+  @override
+  Stream<List<WalletTxn>> watchWallet(String userId) => _db
+      .collection('walletTxns')
+      .where('userId', isEqualTo: userId)
+      .snapshots()
+      .map((q) => (q.docs.map((d) => WalletTxn.fromJson(d.id, _norm(d.data()))).toList())
+        ..sort((a, b) => b.at.compareTo(a.at)));
+
+  @override
+  Future<({int bonus, int total})> chargeWallet(String userId, int amount) async {
+    final res = await _fn.httpsCallable('chargeWallet').call({'userId': userId, 'amount': amount});
+    return (bonus: (res.data?['bonus'] ?? 0) as int, total: (res.data?['total'] ?? amount) as int);
+  }
+
+  @override
+  Future<bool> payWithWallet(String userId, int amount, String label) async {
+    final res = await _fn
+        .httpsCallable('payWithWallet')
+        .call({'userId': userId, 'amount': amount, 'label': label});
+    return res.data?['ok'] == true;
+  }
+
+  @override
+  Future<String> askProviderExpert(String prompt) async {
+    final res = await _fn.httpsCallable('aiProviderExpert').call({'prompt': prompt});
+    return res.data['reply'] as String;
+  }
+
+  @override
+  Stream<List<String>> watchAdminPhones() => _db
+      .collection('settings')
+      .doc('admins')
+      .snapshots()
+      .map((d) => List<String>.from(d.data()?['phones'] ?? ['09148002461']));
+
+  @override
+  Future<void> addAdminPhone(String phone) =>
+      _db.collection('settings').doc('admins').set({
+        'phones': FieldValue.arrayUnion([phone]),
+      }, SetOptions(merge: true));
+
+  @override
+  Future<void> removeAdminPhone(String phone) async {
+    if (phone == '09148002461') throw Exception('شمارهٔ مدیر ارشد قابل حذف نیست');
+    await _db.collection('settings').doc('admins').set({
+      'phones': FieldValue.arrayRemove([phone]),
+    }, SetOptions(merge: true));
+  }
 
   @override
   Stream<double> watchCommission() => _db
