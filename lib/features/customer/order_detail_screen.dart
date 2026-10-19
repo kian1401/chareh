@@ -122,7 +122,13 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _InfoBit('⏰', '${b.dayLabel} • ${b.timeSlot}'),
+                          if (b.confirmedDay.isNotEmpty)
+                            _InfoBit('✅', 'زمان قطعی: ${b.confirmedDay} • ${b.confirmedSlot}')
+                          else if (b.candidateDays.isNotEmpty)
+                            _InfoBit('🗓️', 'پیشنهادی شما: ${b.candidateDays.join('، ')} • ${b.candidateSlots.join('، ')}')
+                          else
+                            _InfoBit('⏰', '${b.dayLabel} • ${b.timeSlot}'),
+                          _InfoBit('🛡️', b.maskedContact(isProvider)),
                           _InfoBit('🧾', 'کد: ${toFaDigits(b.id)}'),
                           PriceLabel(b.totalPrice),
                         ],

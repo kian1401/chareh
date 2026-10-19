@@ -6,6 +6,7 @@ import '../../core/utils/persian_utils.dart';
 import '../../data/models.dart';
 import '../../data/service_locator.dart';
 import '../../shared/widgets.dart';
+import '../../shared/ui.dart';
 import '../auth/auth_state.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
@@ -16,14 +17,13 @@ class AdminDashboardScreen extends StatelessWidget {
     final repo = RepoHub.instance;
     final auth = context.watch<AuthState>();
 
-    if (auth.user?.role != UserRole.admin) {
+    if (!context.watch<AuthState>().isAdmin) {
       return Scaffold(
         appBar: AppBar(title: const Text('داشبورد مدیریت')),
-        body: EmptyState(
+        body: const NeedLogin(
           emoji: '🛡️',
-          title: 'به عنوان مدیر وارد شوید',
-          actionText: 'ورود سریع دمو ⚡',
-          onAction: () => auth.demoLogin(UserRole.admin),
+          title: 'به‌عنوان مدیر وارد شوید',
+          hint: 'شرح حساب مدیر سیستم: با شمارهٔ موبایل پیش‌فرض مدیریت وارد شوید',
         ),
       );
     }

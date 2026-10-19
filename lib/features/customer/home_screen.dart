@@ -2,260 +2,284 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/theme/app_theme.dart';
-import '../../core/utils/persian_utils.dart';
+import '../../../core/utils/persian_utils.dart';
+import '../../core/theme/theme_state.dart';
 import '../../data/models.dart';
 import '../../data/service_locator.dart';
-import '../../shared/widgets.dart';
+import '../../shared/ui.dart';
 import '../auth/auth_state.dart';
 
-class CustomerHomeScreen extends StatelessWidget {
+/// 🏠 خانه‌ی مشتری — طراحی مدرن با تصویر، شهر فعال، دعوت از دوستان
+class CustomerHomeScreen extends StatefulWidget {
   const CustomerHomeScreen({super.key});
 
   @override
+  State<CustomerHomeScreen> createState() => _CustomerHomeScreenState();
+}
+
+class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
+  @override
   Widget build(BuildContext context) {
-    final repo = RepoHub.instance;
     final auth = context.watch<AuthState>();
-    final userId = auth.user?.id ?? 'u_c1';
+    final theme = context.watch<ThemeState>();
+    final user = auth.user;
+    final primary = Theme.of(context).colorScheme.primary;
 
     return Scaffold(
-      appBar: AppBar(
-        titleSpacing: 16,
-        title: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('چاره 🏙️',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
-            Text('📍 تهران — سعادت‌آباد',
-                style: TextStyle(fontSize: 11, color: AppColors.subtext)),
-          ],
-        ),
-        actions: [
-          StreamBuilder<List<AppNotification>>(
-            stream: repo.misc.watchNotifications(userId),
-            builder: (_, snap) {
-              final unread = (snap.data ?? []).where((n) => n.unread).length;
-              return IconButton(
-                onPressed: () => context.push('/notifications'),
-                icon: Badge(
-                  isLabelVisible: unread > 0,
-                  label: Text(toFaDigits(unread)),
-                  child: const Icon(Icons.notifications_outlined),
-                ),
-              );
-            },
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-        children: [
-          const SizedBox(height: 8),
-          Text('سلام ${auth.user?.name.split(' ').first ?? 'مهمان'} 👋',
-              style:
-                  const TextStyle(fontSize: 21, fontWeight: FontWeight.w900)),
-          const SizedBox(height: 4),
-          const Text('امروز چه خدمتی لازم دارید؟',
-              style: TextStyle(color: AppColors.subtext, fontSize: 13.5)),
-          const SizedBox(height: 16),
-
-          // جستجو
-          InkWell(
-            onTap: () => context.go('/c/services?focus=1'),
-            borderRadius: BorderRadius.circular(14),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: const Row(
-                children: [
-                  Icon(Icons.search_rounded, color: AppColors.subtext),
-                  SizedBox(width: 10),
-                  Text('مثلاً: نظافت منزل، سرویس کولر…',
-                      style: TextStyle(color: AppColors.subtext, fontSize: 13)),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // بنر تبلیغاتی
-          InkWell(
-            onTap: () => context.push('/service/s4'),
-            borderRadius: BorderRadius.circular(18),
-            child: Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF0EA5E9), Color(0xFF0369A1)],
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
-                ),
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Row(
-                children: [
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('تابستان خنک با چاره ❄️',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w900,
-                                fontSize: 15)),
-                        SizedBox(height: 6),
-                        Text('۲۵٪ تخفیف سرویس کولر آبی تا پایان هفته',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                height: 1.7)),
-                        SizedBox(height: 10),
-                        Badge(
-                          backgroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          label: Text('رزرو سرویس کولر',
-                              style: TextStyle(
-                                  color: Color(0xFF0369A1),
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 11)),
-                        ),
-                      ],
-                    ),
+      body: CustomScrollView(
+        slivers: [
+          // ── هیرو مدرن ──
+          SliverAppBar(
+            expandedHeight: 190,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              titlePadding: const EdgeInsets.only(right: 16, bottom: 14),
+              title: Row(children: [
+                Text(theme.logoEmoji, style: const TextStyle(fontSize: 20)),
+                const SizedBox(width: 6),
+                Text(theme.appTitle,
+                    style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: Colors.white)),
+              ]),
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [primary, primary.withValues(alpha: 0.55)],
+                    begin: Alignment.topRight, end: Alignment.bottomLeft,
                   ),
-                  const Text('💨', style: TextStyle(fontSize: 52)),
-                ],
+                ),
+                child: Stack(children: [
+                  if (theme.heroImageUrl.isNotEmpty)
+                    Positioned.fill(
+                      child: Image.network(theme.heroImageUrl, fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const SizedBox()),
+                    ),
+                  Positioned.fill(
+                    child: Container(color: primary.withValues(alpha: 0.32)),
+                  ),
+                ]),
               ),
             ),
+            actions: [
+              IconButton(
+                onPressed: () => context.push('/notifications'),
+                icon: const Icon(Icons.notifications_outlined, color: Colors.white),
+              ),
+            ],
           ),
-          const SizedBox(height: 24),
 
-          const SectionHeader('دسته‌بندی خدمات'),
-          const SizedBox(height: 12),
-          StreamBuilder<List<Category>>(
-            stream: repo.catalog.watchCategories(),
-            builder: (_, snap) {
-              final cats = snap.data ?? [];
-              return SizedBox(
-                height: 96,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: cats.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
-                  itemBuilder: (_, i) {
-                    final c = cats[i];
-                    return InkWell(
-                      onTap: () => context.go('/c/services?cat=${c.id}'),
-                      borderRadius: BorderRadius.circular(14),
-                      child: SizedBox(
-                        width: 74,
-                        child: Column(
-                          children: [
-                            EmojiBadge(c.emoji, seed: c.id, size: 56),
-                            const SizedBox(height: 6),
-                            Text(c.title,
-                                maxLines: 2,
-                                textAlign: TextAlign.center,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                    fontSize: 10, fontWeight: FontWeight.w700, height: 1.4)),
-                          ],
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ─── جستجو + شهر ───
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => context.go('/c/services'),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: const Color(0xFFEDEAF6)),
+                            ),
+                            child: const Row(children: [
+                              Icon(Icons.search_rounded, color: Color(0xFF9CA3AF)),
+                              SizedBox(width: 8),
+                              Text('دنبال چه خدمتی هستی؟', style: TextStyle(color: Color(0xFF9CA3AF))),
+                            ]),
+                          ),
                         ),
                       ),
-                    );
-                  },
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 24),
-
-          SectionHeader('پرتقاضاترین سرویس‌ها',
-              actionText: 'همه',
-              onAction: () => context.go('/c/services')),
-          const SizedBox(height: 12),
-          StreamBuilder<List<ServiceItem>>(
-            stream: repo.catalog.watchServices(),
-            builder: (_, snap) {
-              final list = (snap.data ?? [])
-                ..sort((a, b) => b.jobsDone.compareTo(a.jobsDone));
-              final top = list.take(8).toList();
-              return SizedBox(
-                height: 205,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: top.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
-                  itemBuilder: (_, i) => ServiceCard(
-                    service: top[i],
-                    width: 165,
-                    onTap: () => context.push('/service/${top[i].id}'),
+                      const SizedBox(width: 8),
+                      // 🏙️ نمایش شهر فعال
+                      StreamBuilder<List<City>>(
+                        stream: RepoHub.instance.catalog.watchCities(),
+                        builder: (_, snap) {
+                          final cities = snap.data?.where((c) => c.active).toList() ?? [];
+                          return ActionChip(
+                            avatar: const Text('🏙️'),
+                            label: Text(cities.isNotEmpty ? cities.first.title : '...'),
+                            onPressed: () => _citySheet(cities.firstOrNull),
+                          );
+                        },
+                      ),
+                    ],
                   ),
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
-          const SectionHeader('متخصصین برتر'),
-          const SizedBox(height: 12),
-          StreamBuilder<List<ProviderProfile>>(
-            stream: repo.catalog.watchProviders(),
-            builder: (_, snap) {
-              final list = (snap.data ?? [])
-                ..sort((a, b) => b.rating.compareTo(a.rating));
-              return SizedBox(
-                height: 168,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: list.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
-                  itemBuilder: (_, i) => ProviderCard(provider: list[i]),
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 24),
+                  if (user != null) _welcome(user),
+                  const SizedBox(height: 16),
+                  const SectionTitle('دسته‌بندی‌ها 🧰'),
+                  StreamBuilder<List<Category>>(
+                    stream: RepoHub.instance.catalog.watchCategories(),
+                    builder: (_, snap) {
+                      final cats = snap.data ?? [];
+                      if (cats.isEmpty) {
+                        return const Padding(
+                          padding: EdgeInsets.all(32),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      return AdaptiveGrid(
+                        count: cats.length,
+                        ratio: deviceTypeOf(context) == DeviceType.phone ? 0.92 : 0.98,
+                        item: (i) => _categoryCard(cats[i]),
+                      );
+                    },
+                  ),
 
-          // اعتمادسازی
-          const SectionHeader('چرا چاره؟'),
-          const SizedBox(height: 12),
-          const Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _TrustChip('✅ متخصص تاییدشده'),
-              _TrustChip('🛡️ ضمانت انجام کار'),
-              _TrustChip('💳 پرداخت امن'),
-              _TrustChip('☎️ پشتیبانی ۲۴/۷'),
-              _TrustChip('💜 بیمه مسئولیت'),
-            ],
+                  const SizedBox(height: 20),
+                  // 🎁 دعوت از دوستان
+                  if (user != null) _referralBanner(user, primary),
+
+                  const SizedBox(height: 20),
+                  // 💳 بنر بونس کیف پول
+                  _walletBanner(theme.settings, primary),
+
+                  const SizedBox(height: 20),
+                  const SectionTitle('چرا چاره؟ ✨'),
+                  _whyUs(),
+                ],
+              ),
+            ),
           ),
         ],
       ),
     );
   }
-}
 
-class _TrustChip extends StatelessWidget {
-  const _TrustChip(this.label);
-  final String label;
+  Widget _welcome(AppUser user) {
+    return Row(children: [
+      Text('سلام ${user.name} 👋', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
+    ]);
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+  Widget _categoryCard(Category c) {
+    return PillowCard(
+      onTap: () => context.go('/c/services?cat=${c.id}'),
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // 🖼️ تصویر یا اموجی — هوشمند
+          SmartIcon(emoji: c.emoji, imageUrl: c.imageUrl, size: 54, radius: 16),
+          const SizedBox(height: 10),
+          Text(c.title,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, height: 1.5)),
+        ],
       ),
-      child: Text(label,
-          style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700)),
+    );
+  }
+
+  Widget _referralBanner(AppUser user, Color primary) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [primary, primary.withValues(alpha: 0.75)]),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          const Text('🎁', style: TextStyle(fontSize: 34)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Text('دوستانت را به چاره دعوت کن',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
+              Text('هر دو کیف پول هدیه می‌گیرید. کد من: ${user.referralCode}',
+                  style: const TextStyle(color: Colors.white70, fontSize: 12, height: 1.6)),
+            ]),
+          ),
+          FilledButton.tonalIcon(
+            onPressed: () => context.push('/c/wallet'),
+            icon: const Icon(Icons.share_rounded),
+            label: const Text('دعوت'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _walletBanner(AppSettings s, Color primary) {
+    if (s.bonusTiers.isEmpty) return const SizedBox();
+    return InkWell(
+      onTap: () => context.push('/c/wallet'),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFEF9C3),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            const Text('💰', style: TextStyle(fontSize: 24)),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'شارژ والت = هدیه! از ${s.bonusTiers.first.bonusPercent}٪ تا ${s.bonusTiers.last.bonusPercent}٪ بونس',
+                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
+              ),
+            ),
+            const Icon(Icons.arrow_back_ios_new_rounded, size: 14),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _whyUs() {
+    final items = [
+      ('🛡️', 'گارانتی ۹۰ روزه', 'تعمیرات لوازم خانگی'),
+      ('💳', 'پرداخت امن', 'البته با کیف پول بونس'),
+      ('⏰', 'زمان‌بندی انعطاف', 'چند روز/بازه پیشنهادی'),
+      ('🤖', 'هوش مصنوعی', 'عیب‌یابی تمام‌وقت'),
+    ];
+    return AdaptiveGrid(
+      count: items.length,
+      ratio: 1.6,
+      item: (i) => PillowCard(
+        padding: const EdgeInsets.all(10),
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Text(items[i].$1, style: const TextStyle(fontSize: 22)),
+          const SizedBox(height: 4),
+          Text(items[i].$2, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800), textAlign: TextAlign.center),
+          Text(items[i].$3, style: const TextStyle(fontSize: 9.5, color: Color(0xFF9CA3AF)), textAlign: TextAlign.center),
+        ]),
+      ),
+    );
+  }
+
+  void _citySheet(City? active) {
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => StreamBuilder<List<City>>(
+        stream: RepoHub.instance.catalog.watchCities(activeOnly: false),
+        builder: (_, snap) {
+          final cities = snap.data ?? [];
+          return ListView(
+            shrinkWrap: true,
+            padding: const EdgeInsets.all(16),
+            children: [
+              const Text('شهر خود را انتخاب کنید', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
+              const SizedBox(height: 12),
+              for (final c in cities)
+                ListTile(
+                  leading: Text(c.active ? '✅' : '🔒', style: const TextStyle(fontSize: 20)),
+                  title: Text(c.title),
+                  subtitle: Text(c.active ? c.province : 'به‌زودی در ${c.title}'),
+                  trailing: c.active ? const Icon(Icons.check_circle, color: Color(0xFF059669)) : null,
+                ),
+            ],
+          );
+        },
+      ),
     );
   }
 }

@@ -20,7 +20,7 @@ class EarningsScreen extends StatelessWidget {
         body: const EmptyState(emoji: '🔐', title: 'ابتدا به‌عنوان سرویس‌دهنده وارد شوید'),
       );
     }
-    final pid = auth.linkedProviderId!;
+    final pid = auth.effectiveProviderId!;
 
     return Scaffold(
       appBar: AppBar(title: const Text('درآمد و تسویه 💰')),

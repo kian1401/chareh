@@ -7,6 +7,7 @@ import '../../core/utils/persian_utils.dart';
 import '../../data/models.dart';
 import '../../data/service_locator.dart';
 import '../../shared/widgets.dart';
+import '../../shared/ui.dart';
 import '../auth/auth_state.dart';
 
 class ProviderProfileScreen extends StatelessWidget {
@@ -17,18 +18,13 @@ class ProviderProfileScreen extends StatelessWidget {
     final auth = context.watch<AuthState>();
     final repo = RepoHub.instance;
 
-    if (auth.user?.role != UserRole.provider) {
+    if (auth.effectiveProviderId == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('پروفایل متخصص')),
-        body: EmptyState(
-          emoji: '🧑‍🔧',
-          title: 'به عنوان سرویس‌دهنده وارد شوید',
-          actionText: 'ورود سریع دمو ⚡',
-          onAction: () => auth.demoLogin(UserRole.provider),
-        ),
+        body: const NeedLogin(emoji: '🧑‍🔧', title: 'حساب متخصص لازم است'),
       );
     }
-    final pid = auth.linkedProviderId!;
+    final pid = auth.effectiveProviderId!;
 
     return Scaffold(
       appBar: AppBar(

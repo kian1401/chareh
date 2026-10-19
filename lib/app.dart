@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'core/router/app_router.dart';
-import 'core/theme/app_theme.dart';
+import 'core/theme/theme_state.dart';
 import 'data/models.dart';
 import 'features/auth/auth_state.dart';
 
@@ -27,18 +27,23 @@ class CharehApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => AuthState(initialPortal: initialPortal),
-      child: MaterialApp.router(
-        title: 'چاره — خدمت از در خانه شما',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light,
-        locale: const Locale('fa'),
-        supportedLocales: const [Locale('fa'), Locale('en')],
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        routerConfig: router,
+      child: ChangeNotifierProvider(
+        create: (_) => ThemeState(),
+        child: Consumer<ThemeState>(
+          builder: (_, t, __) => MaterialApp.router(
+            title: '${t.appTitle} — خدمت از در خانه شما',
+            debugShowCheckedModeBanner: false,
+            theme: t.light,
+            locale: const Locale('fa'),
+            supportedLocales: const [Locale('fa'), Locale('en')],
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            routerConfig: router,
+          ),
+        ),
       ),
     );
   }

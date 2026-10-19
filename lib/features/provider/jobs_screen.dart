@@ -20,7 +20,7 @@ class JobsScreen extends StatelessWidget {
         body: const EmptyState(emoji: '🔐', title: 'ابتدا به‌عنوان سرویس‌دهنده وارد شوید'),
       );
     }
-    final pid = auth.linkedProviderId!;
+    final pid = auth.effectiveProviderId!;
 
     return DefaultTabController(
       length: 2,

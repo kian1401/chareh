@@ -7,6 +7,7 @@ import '../../core/utils/persian_utils.dart';
 import '../../data/models.dart';
 import '../../data/service_locator.dart';
 import '../../shared/widgets.dart';
+import '../../shared/ui.dart';
 import '../auth/auth_state.dart';
 
 /// داشبورد سرویس‌دهنده
@@ -18,23 +19,45 @@ class ProviderDashboardScreen extends StatelessWidget {
     final repo = RepoHub.instance;
     final auth = context.watch<AuthState>();
 
-    if (auth.user?.role != UserRole.provider) {
+    if (auth.effectiveProviderId == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('داشبورد متخصص')),
-        body: EmptyState(
+        body: const NeedLogin(
           emoji: '🧑‍🔧',
-          title: 'به عنوان سرویس‌دهنده وارد شوید',
-          body: 'با ورود، درخواست‌های جدید را می‌بینید و کارها و درآمدتان را مدیریت می‌کنید',
-          actionText: 'ورود سریع دمو ⚡',
-          onAction: () => auth.demoLogin(UserRole.provider),
+          title: 'حساب متخصص لازم است',
+          hint: 'اگر به‌تازگی با شماره‌ات وارد شدی ولی متخصص نیستی، ادمین شهرت را عضو می‌کند.',
         ),
       );
     }
 
-    final pid = auth.linkedProviderId!;
+    final pid = auth.effectiveProviderId!;
+    final previewing = auth.isPreviewingProvider;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('داشبورد متخصص')),
+      appBar: AppBar(
+        title: Row(children: [
+          const Text('داشبورد متخصص'),
+          if (previewing) ...[
+            const SizedBox(width: 8),
+            Chip(
+              avatar: const Text('🛡️'),
+              label: const Text('پیش‌نمایش ادمین', style: TextStyle(fontSize: 10.5)),
+              padding: EdgeInsets.zero,
+            ),
+          ],
+        ]),
+        actions: previewing
+            ? [
+                TextButton(
+                  onPressed: () {
+                    auth.exitProviderPreview();
+                    context.go('/a/home');
+                  },
+                  child: const Text('← خروج از پیش‌نمایش'),
+                ),
+              ]
+            : null,
+      ),
       body: StreamBuilder<ProviderProfile?>(
         stream: repo.providers.watchProfile(pid),
         builder: (_, pSnap) {
@@ -125,7 +148,7 @@ class ProviderDashboardScreen extends StatelessWidget {
                           .where((b) => b.dayLabel == 'امروز' && b.status.isActive)
                           .length;
                       return StreamBuilder<List<Booking>>(
-                        stream: repo.bookings.watchProviderRequests(),
+                        stream: repo.bookings.watchProviderRequests("urmia"),
                         builder: (_, rSnap) {
                           final requests = (rSnap.data ?? []).length;
                           return GridView.count(

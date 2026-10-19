@@ -39,12 +39,7 @@ class CustomerProfileScreen extends StatelessWidget {
                           icon: const Icon(Icons.login_rounded),
                           label: const Text('ورود / ثبت‌نام'),
                         ),
-                        if (RepoHub.instance.isMock)
-                          TextButton(
-                            onPressed: () =>
-                                auth.demoLogin(UserRole.customer),
-                            child: const Text('ورود سریع دمو ⚡'),
-                          ),
+
                       ],
                     )
                   : Row(
