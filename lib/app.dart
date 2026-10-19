@@ -8,8 +8,8 @@ import 'core/theme/app_theme.dart';
 import 'data/models.dart';
 import 'features/auth/auth_state.dart';
 
-class ShahrekarApp extends StatelessWidget {
-  ShahrekarApp({
+class CharehApp extends StatelessWidget {
+  CharehApp({
     super.key,
     this.initialLocation = '/start',
     this.initialPortal,

@@ -1,6 +1,6 @@
 {
-  "name": "shahrekar-functions",
-  "description": "Cloud Functions برای شهرکار: OTP، اعلان‌ها، دستیار هوشمند Gemini و محاسبات مالی",
+  "name": "chareh-functions",
+  "description": "Cloud Functions برای چاره: OTP، اعلان‌ها، دستیار هوشمند Gemini و محاسبات مالی",
   "version": "1.0.0",
   "engines": { "node": "20" },
   "main": "lib/index.js",

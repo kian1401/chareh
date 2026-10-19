@@ -1,5 +1,5 @@
 /**
- * شهرکار — Cloud Functions
+ * چاره — Cloud Functions
  * ─────────────────────────────────────────────────────────
  * ۱) sendOtp / verifyOtp : احراز هویت موبایلی با Custom Token
  * ۲) onBookingStatus     : اعلان وضعیت سفارش برای مشتری
@@ -61,7 +61,7 @@ export const verifyOtp = onCall(async (req) => {
   const uref = db.collection('users').doc(uid);
   if (!(await uref.get()).exists) {
     await uref.set({
-      name: 'کاربر شهرکار',
+      name: 'کاربر چاره',
       phone,
       role: data.role ?? 'customer',
       avatarEmoji: '🙂',
@@ -150,7 +150,7 @@ export const aiAssistant = onCall({ secrets: [GEMINI_API_KEY] }, async (req) => 
   if (!prompt) throw new HttpsError('invalid-argument', 'متن خالی است');
 
   const system =
-    'تو «شهرکاری» هستی؛ دستیار فارسی‌زبان اپلیکیشن خدمات خانگی شهرکار (مشابه Urban Company). ' +
+    'تو «چارهی» هستی؛ دستیار فارسی‌زبان اپلیکیشن خدمات خانگی چاره (مشابه Urban Company). ' +
     'پاسخ‌ها کوتاه، دوستانه و کاربردی باشد. قیمت‌ها را به تومان و با اعداد فارسی بنویس. ' +
     'حوزه‌ها: نظافت، تعمیرات و سرویس لوازم خانگی، برق و تأسیسات، لوله‌کشی، نقاشی، زیبایی در منزل، تعمیر موبایل، اسباب‌کشی. ' +
     'اگر سوال نامرتبط بود مؤدبانه به موضوع خدمات برگرد. سیاست لغو: تا ۲ ساعت قبل رایگان. در انتها کاربر را به رزرو تشویق کن.';

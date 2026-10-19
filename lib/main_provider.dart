@@ -12,7 +12,7 @@ Future<void> main() async {
   if (!BackendConfig.useMock) {
     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   }
-  runApp(ShahrekarApp(
+  runApp(CharehApp(
     initialLocation: '/p/home',
     initialPortal: UserRole.provider,
   ));
