@@ -1,0 +1,54 @@
+name: 🐞 گزارش ایراد (برای همکاران تست)
+description: ایراد را همین‌جا بنویسید؛ فرم فارسی با سوال‌های خودکار
+title: "[باگ]: "
+labels: [bug, alpha-test]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        🙏 **ممنون که چاره را تست می‌کنید!** این فرم را کامل کنید تا ایراد سریع ردیابی شود. اسکرین‌شات/فیلم؟ بگذرید!
+  - type: dropdown
+    id: portal
+    attributes:
+      label: در کدام اپ؟
+      options:
+        - اپ مشتری 🙋
+        - اپ متخصص 🧑‍🔧
+        - داشبورد ادمین 🛡️ (وب)
+        - همه
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: دستگاه و نسخه اندروید
+      placeholder: مثلاً سامسونگ A52 - اندروید 14 / مرورگر کروم
+  - type: textarea
+    id: steps
+    attributes:
+      label: مراحل بازتولید ایراد
+      placeholder: |
+        ۱. اپ را باز کردم؛
+        ۲. روی «سرویس کولر» زدم؛
+        ۳. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: چه انتظاری داشتید؟ چه اتفاقی افتاد؟
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: شدت
+      options:
+        - 🔴 کرش / جلوی کار را می‌گیرد
+        - 🟠 جدی ولی دوره‌ای
+        - 🟡 ظاهری / جزئی
+        - 💡 پیشنهاد بهبود
+  - type: textarea
+    id: extra
+    attributes:
+      label: چیز دیگری (لاگ، پیام خطا)

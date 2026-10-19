@@ -1,0 +1,26 @@
+# 🔗 Render Blueprint — استقرار رایگان شهرکار
+# README: بخش رندر در deploy/DEPLOY.md
+services:
+  # ── وب‌اپ + صفحه دانلود APK (رایگان، همیشه روشن) ──
+  - type: web
+    name: shahrekar-web
+    runtime: static
+    buildCommand: bash deploy/render_build.sh
+    staticPublishPath: build/web
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=300
+
+  # ── آمادهٔ مرحلهٔ دوم: API واقعی (همین‌جا کامنت بماند تا بک‌اند ساخته شود) ──
+  # - type: web
+  #   name: shahrekar-api
+  #   runtime: node
+  #   buildCommand: cd backend && npm ci
+  #   startCommand: cd backend && node server.js
+  #   plan: free
+  #   healthCheckPath: /api/health

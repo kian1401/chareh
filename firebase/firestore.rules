@@ -1,0 +1,81 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ───── ابزارها ─────
+    function signedIn() { return request.auth != null; }
+    function userDoc() { return get(/databases/$(database)/documents/users/$(request.auth.uid)); }
+    function role() { return signedIn() && userDoc().exists ? userDoc().data.role : 'customer'; }
+    function isAdmin() { return role() == 'admin'; }
+    function isProvider() { return role() == 'provider'; }
+    function isSelf(uid) { return signedIn() && request.auth.uid == uid; }
+
+    // ───── کاربران ─────
+    match /users/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      // ایجاد فقط از سمت سرور (Cloud Functionِ verifyOtp) — با Admin SDK قوانین دور زده می‌شود
+      allow create: if false;
+      allow update: if isSelf(uid) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role'])
+                    || isAdmin();
+      allow delete: if isAdmin();
+
+      match /addresses/{addrId} {
+        allow read, write: if isSelf(uid) || isAdmin();
+      }
+    }
+
+    // ───── کاتالوگ (خواندن آزاد، نوشتن فقط ادمین) ─────
+    match /categories/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /services/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /reviews/{id} {
+      allow read: if true;
+      allow create: if signedIn();
+      allow update, delete: if isAdmin();
+    }
+    match /providers/{id} {
+      allow read: if true;
+      // خود متخصص فقط فیلد online را عوض کند؛ بقیه فقط ادمین
+      allow update: if isAdmin()
+                    || (isProvider() && isSelf(resource.data.userId)
+                        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['verified','rating','jobsDone','level']));
+      allow create, delete: if isAdmin();
+    }
+
+    // ───── سفارش‌ها ─────
+    match /bookings/{id} {
+      allow read: if isAdmin()
+                    || (signedIn() && resource.data.customerId == request.auth.uid)
+                    || (isProvider() && (resource.data.providerId == null));  // درخواست‌های باز بازار
+      allow create: if signedIn() && request.resource.data.customerId == request.auth.uid;
+      allow update: if isAdmin()
+                    || (signedIn() && resource.data.customerId == request.auth.uid
+                        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['totalPrice','customerId','serviceId']))
+                    || isProvider();
+      allow delete: if isAdmin();
+    }
+
+    // ───── چت، اعلان، درآمد، تنظیمات ─────
+    match /threads/{threadId} {
+      allow read, write: if signedIn() || isAdmin();
+      match /messages/{mId} { allow read, write: if signedIn() || isAdmin(); }
+    }
+    match /notifications/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+    match /earnings/{id} {
+      allow read: if isProvider() || isAdmin();
+      allow write: if false; // فقط Cloud Functions (سمت سرور)
+    }
+    match /settings/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}
