@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../../data/models.dart';
 import '../../data/service_locator.dart';
 
-/// وضعیت سراسری احراز هویت + پرتال فعلی + پیش‌نمایش ادمین روی پنل متخصص
+/// وضعیت سراسری احراز هویت + پرتال فعلی (مشتری/سرویس‌دهنده/ادمین)
 class AuthState extends ChangeNotifier {
   AuthState({UserRole? initialPortal}) {
     if (initialPortal != null) {
@@ -16,54 +16,21 @@ class AuthState extends ChangeNotifier {
       user = u;
       notifyListeners();
     });
-    // پیوند خودکار حساب متخصص به پروفایل (بر اساس شماره موبایل)
-    _subProv = RepoHub.instance.providers.watchAll().listen((list) {
-      _myProvider = null;
-      final u = user;
-      if (u != null && u.role == UserRole.provider) {
-        for (final p in list) {
-          if (p.phone == u.phone || p.userId == u.id) { _myProvider = p; break; }
-        }
-      }
-      notifyListeners();
-    });
   }
 
   AppUser? user;
   UserRole portal = UserRole.customer;
+
+  /// وقتی فلیور جداگانه (مثلاً اپ متخصص) اجرا شده، تعویض پرتال غیرفعال است
   bool locked = false;
 
-  /// 🔍 ادمین: واردِ پنل این متخصص شو (پیش‌نمایش)
-  String? previewProviderId;
-
   StreamSubscription<AppUser?>? _sub;
-  StreamSubscription<List<ProviderProfile>>? _subProv;
-  ProviderProfile? _myProvider;
 
   bool get loggedIn => user != null;
-  bool get isAdmin => user?.role == UserRole.admin;
 
-  /// شناسهٔ متخصصِ کاربر جاری (از روی ثبت شماره خطاطش/admin)
-  String? get linkedProviderId => _myProvider?.id;
-
-  /// شناسهٔ متخصصی که در UI پنل واقعی‌اش را می‌بینیم (خودم یا پیش‌نمایش ادمین)
-  String? get effectiveProviderId {
-    if (previewProviderId != null && portal == UserRole.provider) return previewProviderId;
-    return linkedProviderId;
-  }
-
-  bool get isPreviewingProvider => previewProviderId != null && previewProviderId != linkedProviderId;
-
-  void enterProviderPreview(String providerId) {
-    previewProviderId = providerId;
-    portal = UserRole.provider;
-    notifyListeners();
-  }
-
-  void exitProviderPreview() {
-    previewProviderId = null;
-    notifyListeners();
-  }
+  /// اتصال دموی کاربر سرویس‌دهنده به پروفایل «حسین اکبری»
+  String? get linkedProviderId =>
+      (user != null && user!.role == UserRole.provider) ? 'p7' : null;
 
   void setPortal(UserRole role) {
     portal = role;
@@ -73,20 +40,25 @@ class AuthState extends ChangeNotifier {
   Future<void> sendOtp(String phone) =>
       RepoHub.instance.auth.sendOtp(phone: phone, role: portal);
 
-  Future<AppUser> verifyOtp(String phone, String code, {String? referralCode}) =>
-      RepoHub.instance.auth.verifyOtp(phone: phone, code: code, referralCode: referralCode);
+  Future<AppUser> verifyOtp(String phone, String code) =>
+      RepoHub.instance.auth.verifyOtp(phone: phone, code: code);
+
+  Future<AppUser> demoLogin(UserRole role) =>
+      RepoHub.instance.auth.signInDemo(role);
 
   Future<void> signOut() => RepoHub.instance.auth.signOut();
 
   bool isFavorite(String serviceId) => user?.favorites.contains(serviceId) ?? false;
-  Future<void> toggleFavorite(String serviceId) => RepoHub.instance.auth.toggleFavorite(serviceId);
 
+  Future<void> toggleFavorite(String serviceId) =>
+      RepoHub.instance.auth.toggleFavorite(serviceId);
+
+  /// بازخوانی دستی UI (برای تغییرات محلی دمو مثل شارژ کیف پول)
   void refresh() => notifyListeners();
 
   @override
   void dispose() {
     _sub?.cancel();
-    _subProv?.cancel();
     super.dispose();
   }
 }

@@ -75,10 +75,7 @@ class AppUser {
   UserRole role;
   String avatarEmoji;
   int walletBalance;
-  int points; // امتیاز وفاداری
-  String referralCode; // کد دعوت من
-  String? referredBy; // اگر با کد دعوت ثبت‌نام کرد
-  List<String> favorites;
+  List<String> favorites; // شناسه‌ی سرویس‌ها
 
   AppUser({
     required this.id,
@@ -87,9 +84,6 @@ class AppUser {
     required this.role,
     this.avatarEmoji = '🙂',
     this.walletBalance = 0,
-    this.points = 0,
-    this.referralCode = '',
-    this.referredBy,
     List<String>? favorites,
   }) : favorites = favorites ?? [];
 
@@ -101,9 +95,6 @@ class AppUser {
         'role': role.name,
         'avatarEmoji': avatarEmoji,
         'walletBalance': walletBalance,
-        'points': points,
-        'referralCode': referralCode,
-        'referredBy': referredBy,
         'favorites': favorites,
       };
 
@@ -114,9 +105,6 @@ class AppUser {
         role: UserRoleX.fromName(j['role']),
         avatarEmoji: j['avatarEmoji'] ?? '🙂',
         walletBalance: (j['walletBalance'] ?? 0) as int,
-        points: (j['points'] ?? 0) as int,
-        referralCode: j['referralCode'] ?? '',
-        referredBy: j['referredBy'],
         favorites: List<String>.from(j['favorites'] ?? []),
       );
 }
@@ -126,31 +114,14 @@ class Category {
   final String id;
   String title;
   String emoji;
-  String imageUrl; // 👈 تصویر اختصاصی به‌جای اموجی (اختیاری)
   bool active;
-  bool featured; // نمایش ویژه در خانه
-  int order;
 
-  Category({
-    required this.id,
-    required this.title,
-    required this.emoji,
-    this.imageUrl = '',
-    this.active = true,
-    this.featured = false,
-    this.order = 0,
-  });
+  Category({required this.id, required this.title, required this.emoji, this.active = true});
 
-  Map<String, dynamic> toJson() => {
-        'title': title, 'emoji': emoji, 'imageUrl': imageUrl,
-        'active': active, 'featured': featured, 'order': order,
-      };
+  Map<String, dynamic> toJson() => {'title': title, 'emoji': emoji, 'active': active};
 
-  factory Category.fromJson(String id, Map<String, dynamic> j) => Category(
-        id: id, title: j['title'] ?? '', emoji: j['emoji'] ?? '🔧',
-        imageUrl: j['imageUrl'] ?? '', active: j['active'] ?? true,
-        featured: j['featured'] ?? false, order: (j['order'] ?? 0) as int,
-      );
+  factory Category.fromJson(String id, Map<String, dynamic> j) =>
+      Category(id: id, title: j['title'] ?? '', emoji: j['emoji'] ?? '🔧', active: j['active'] ?? true);
 }
 
 // ─────────────────────── سرویس و گزینه‌ها ───────────────────────
@@ -200,7 +171,6 @@ class ServiceItem {
   String title;
   String description;
   String emoji;
-  String imageUrl; // 👈 تصویر اختصاصی (اختیاری)
   int basePrice; // «شروع قیمت از»
   double rating;
   int ratingCount;
@@ -217,7 +187,6 @@ class ServiceItem {
     required this.description,
     required this.emoji,
     required this.basePrice,
-    this.imageUrl = '',
     this.rating = 4.7,
     this.ratingCount = 0,
     this.jobsDone = 0,
@@ -232,7 +201,6 @@ class ServiceItem {
         'title': title,
         'description': description,
         'emoji': emoji,
-        'imageUrl': imageUrl,
         'basePrice': basePrice,
         'rating': rating,
         'ratingCount': ratingCount,
@@ -249,7 +217,6 @@ class ServiceItem {
         title: j['title'] ?? '',
         description: j['description'] ?? '',
         emoji: j['emoji'] ?? '🔧',
-        imageUrl: j['imageUrl'] ?? '',
         basePrice: (j['basePrice'] ?? 0) as int,
         rating: (j['rating'] ?? 0).toDouble(),
         ratingCount: (j['ratingCount'] ?? 0) as int,
@@ -301,15 +268,10 @@ class ProviderProfile {
   String emoji;
   List<String> skills; // عناوین سرویس‌ها
   double rating;
-  int ratingCount;
   int jobsDone;
   bool verified;
   bool online;
-  bool active; // حذف/مسدود غیرمستقیم توسط ادمین
   String level; // «حرفه‌ای»، «برتر»...
-  String cityId;
-  String phone; // واقعی — فقط ادمین/خودش می‌بیند
-  String? userId; // پیوند به حساب ورود
 
   ProviderProfile({
     required this.id,
@@ -317,15 +279,10 @@ class ProviderProfile {
     required this.emoji,
     required this.skills,
     this.rating = 4.8,
-    this.ratingCount = 0,
     this.jobsDone = 0,
     this.verified = true,
     this.online = true,
-    this.active = true,
     this.level = 'حرفه‌ای',
-    this.cityId = 'urmia',
-    this.phone = '',
-    this.userId,
   });
 
   Map<String, dynamic> toJson() => {
@@ -333,15 +290,10 @@ class ProviderProfile {
         'emoji': emoji,
         'skills': skills,
         'rating': rating,
-        'ratingCount': ratingCount,
         'jobsDone': jobsDone,
         'verified': verified,
         'online': online,
-        'active': active,
         'level': level,
-        'cityId': cityId,
-        'phone': phone,
-        'userId': userId,
       };
 
   factory ProviderProfile.fromJson(String id, Map<String, dynamic> j) => ProviderProfile(
@@ -350,15 +302,10 @@ class ProviderProfile {
         emoji: j['emoji'] ?? '🧑‍🔧',
         skills: List<String>.from(j['skills'] ?? []),
         rating: (j['rating'] ?? 0).toDouble(),
-        ratingCount: (j['ratingCount'] ?? 0) as int,
         jobsDone: (j['jobsDone'] ?? 0) as int,
         verified: j['verified'] ?? false,
         online: j['online'] ?? true,
-        active: j['active'] ?? true,
         level: j['level'] ?? 'حرفه‌ای',
-        cityId: j['cityId'] ?? 'urmia',
-        phone: j['phone'] ?? '',
-        userId: j['userId'],
       );
 }
 
@@ -368,52 +315,22 @@ class AddressItem {
   final String title; // خانه، محل کار...
   final String text;
   final bool isDefault;
-  final double lat;
-  final double lng;
-  final String cityId;
-  final String plaque; // پلاک/واحد
 
   const AddressItem({
     required this.id,
     required this.title,
     required this.text,
     this.isDefault = false,
-    this.lat = 37.55,
-    this.lng = 45.07,
-    this.cityId = 'urmia',
-    this.plaque = '',
   });
 
-  Map<String, dynamic> toJson() => {
-        'title': title, 'text': text, 'isDefault': isDefault,
-        'lat': lat, 'lng': lng, 'cityId': cityId, 'plaque': plaque,
-      };
+  Map<String, dynamic> toJson() => {'title': title, 'text': text, 'isDefault': isDefault};
 
   factory AddressItem.fromJson(String id, Map<String, dynamic> j) => AddressItem(
         id: id,
         title: j['title'] ?? '',
         text: j['text'] ?? '',
         isDefault: j['isDefault'] ?? false,
-        lat: (j['lat'] ?? 37.55).toDouble(),
-        lng: (j['lng'] ?? 45.07).toDouble(),
-        cityId: j['cityId'] ?? 'urmia',
-        plaque: j['plaque'] ?? '',
       );
-}
-
-// ─────────────────────────── شهر فعال / غیرفعال ───────────────────────────
-class City {
-  final String id;
-  String title;
-  String province;
-  bool active;
-
-  City({required this.id, required this.title, this.province = '', this.active = false});
-
-  Map<String, dynamic> toJson() => {'title': title, 'province': province, 'active': active};
-
-  factory City.fromJson(String id, Map<String, dynamic> j) =>
-      City(id: id, title: j['title'] ?? '', province: j['province'] ?? '', active: j['active'] ?? false);
 }
 
 // ─────────────────────────── سفارش ───────────────────────────
@@ -448,16 +365,9 @@ class Booking {
   String? providerId;
   String? providerName;
   String? providerEmoji;
-  String cityId;
-  String dayLabel;          // قدیمی — اگر تک‌روز بود
-  String timeSlot;          // قدیمی
-  List<String> candidateDays;  // 👈 بازه زمانی چندانتخابی: چند روز
-  List<String> candidateSlots; // 👈 چند بازهٔ ساعتی
-  String confirmedDay;    // انتخاب نهایی متخصص هنگام پذیرش
-  String confirmedSlot;
+  String dayLabel;
+  String timeSlot;
   String addressText;
-  double addressLat;
-  double addressLng;
   BookingStatus status;
   int totalPrice;
   DateTime createdAt;
@@ -465,7 +375,6 @@ class Booking {
   int? rating;
   String? review;
   String paymentMethod; // «آنلاین» یا «کیف پول» یا «نقدی»
-  bool contactRevealed; // عدم دور زدن: تماس واقعی بعد از پذیرش/تکمیل
 
   Booking({
     required this.id,
@@ -479,16 +388,9 @@ class Booking {
     this.providerId,
     this.providerName,
     this.providerEmoji,
-    this.cityId = 'urmia',
     required this.dayLabel,
     required this.timeSlot,
-    this.candidateDays = const [],
-    this.candidateSlots = const [],
-    this.confirmedDay = '',
-    this.confirmedSlot = '',
     required this.addressText,
-    this.addressLat = 37.55,
-    this.addressLng = 45.07,
     this.status = BookingStatus.pending,
     required this.totalPrice,
     DateTime? createdAt,
@@ -496,7 +398,6 @@ class Booking {
     this.rating,
     this.review,
     this.paymentMethod = 'آنلاین',
-    this.contactRevealed = false,
   })  : createdAt = createdAt ?? DateTime.now(),
         timeline = timeline ?? [StatusEvent(BookingStatus.pending, DateTime.now())];
 
@@ -511,16 +412,9 @@ class Booking {
         'providerId': providerId,
         'providerName': providerName,
         'providerEmoji': providerEmoji,
-        'cityId': cityId,
         'dayLabel': dayLabel,
         'timeSlot': timeSlot,
-        'candidateDays': candidateDays,
-        'candidateSlots': candidateSlots,
-        'confirmedDay': confirmedDay,
-        'confirmedSlot': confirmedSlot,
         'addressText': addressText,
-        'addressLat': addressLat,
-        'addressLng': addressLng,
         'status': status.name,
         'totalPrice': totalPrice,
         'createdAt': createdAt.toIso8601String(),
@@ -528,14 +422,7 @@ class Booking {
         'rating': rating,
         'review': review,
         'paymentMethod': paymentMethod,
-        'contactRevealed': contactRevealed,
       };
-
-  /// شمارهٔ ماسک‌شده (ضد دور زدن پلتفرم)
-  String maskedContact(bool isProvider) {
-    if (contactRevealed || status == BookingStatus.completed) return '📞 تماس آزاد است';
-    return isProvider ? '📞 ۰۹* **** **** — بعد از پذیرش قابل نمایش' : '📞 پل تلفنی امن چاره';
-  }
 
   factory Booking.fromJson(String id, Map<String, dynamic> j) => Booking(
         id: id,
@@ -549,16 +436,9 @@ class Booking {
         providerId: j['providerId'],
         providerName: j['providerName'],
         providerEmoji: j['providerEmoji'],
-        cityId: j['cityId'] ?? 'urmia',
         dayLabel: j['dayLabel'] ?? '',
         timeSlot: j['timeSlot'] ?? '',
-        candidateDays: List<String>.from(j['candidateDays'] ?? []),
-        candidateSlots: List<String>.from(j['candidateSlots'] ?? []),
-        confirmedDay: j['confirmedDay'] ?? '',
-        confirmedSlot: j['confirmedSlot'] ?? '',
         addressText: j['addressText'] ?? '',
-        addressLat: (j['addressLat'] ?? 37.55).toDouble(),
-        addressLng: (j['addressLng'] ?? 45.07).toDouble(),
         status: BookingStatusX.fromName(j['status']),
         totalPrice: (j['totalPrice'] ?? 0) as int,
         createdAt: DateTime.tryParse(j['createdAt'] ?? '') ?? DateTime.now(),
@@ -569,7 +449,6 @@ class Booking {
         rating: j['rating'],
         review: j['review'],
         paymentMethod: j['paymentMethod'] ?? 'آنلاین',
-        contactRevealed: j['contactRevealed'] ?? false,
       );
 }
 
@@ -670,22 +549,19 @@ class BookingDraft {
   ServiceItem? service;
   ServiceOption? option;
   final Set<String> addOnIds = {};
-  final Set<String> days = {};      // 👈 چند روز قابل انتخاب
-  final Set<String> slots = {};     // 👈 چند بازهٔ ساعتی
+  DateTime? day;
+  String? timeSlot;
   AddressItem? address;
-  String cityId = 'urmia';
   String paymentMethod = 'آنلاین';
-  bool agreementAccepted = false;   // تعهد عدم دور زدن
 
   void reset(ServiceItem s) {
     service = s;
     option = s.options.isNotEmpty ? s.options.first : null;
     addOnIds.clear();
-    days.clear();
-    slots.clear();
+    day = null;
+    timeSlot = null;
     address = null;
     paymentMethod = 'آنلاین';
-    agreementAccepted = false;
   }
 
   int get total {
@@ -697,120 +573,7 @@ class BookingDraft {
     return t;
   }
 
-  bool get ready =>
-      service != null && option != null && days.isNotEmpty && slots.isNotEmpty && address != null && agreementAccepted;
+  bool get ready => service != null && option != null && day != null && timeSlot != null && address != null;
 
-  String get dayLabel => days.isEmpty ? '' : days.first;
-  String get slotLabel => slots.isEmpty ? '' : slots.first;
+  String get dayLabel => day == null ? '' : faDayLabel(day!);
 }
-
-// ─────────────────── تنظیمات سیستم (ادمین/CMS) ───────────────────
-class WalletBonusTier {
-  final String id;
-  int minAmount; // تومان
-  int bonusPercent;
-
-  WalletBonusTier({required this.id, required this.minAmount, required this.bonusPercent});
-
-  Map<String, dynamic> toJson() => {'minAmount': minAmount, 'bonusPercent': bonusPercent};
-  factory WalletBonusTier.fromJson(String id, Map<String, dynamic> j) =>
-      WalletBonusTier(id: id, minAmount: (j['minAmount'] ?? 0) as int, bonusPercent: (j['bonusPercent'] ?? 0) as int);
-}
-
-class WalletTxn {
-  final String id;
-  final String userId;
-  final String title;
-  final int amount; // +شارژ/بونس  −پرداخت
-  final bool isBonus;
-  final DateTime at;
-
-  const WalletTxn({required this.id, required this.userId, required this.title,
-      required this.amount, this.isBonus = false, required this.at});
-
-  Map<String, dynamic> toJson() => {
-        'userId': userId, 'title': title, 'amount': amount,
-        'isBonus': isBonus, 'at': at.toIso8601String(),
-      };
-
-  factory WalletTxn.fromJson(String id, Map<String, dynamic> j) => WalletTxn(
-        id: id,
-        userId: j['userId'] ?? '',
-        title: j['title'] ?? '',
-        amount: (j['amount'] ?? 0) as int,
-        isBonus: j['isBonus'] ?? false,
-        at: DateTime.tryParse(j['at'] ?? '') ?? DateTime.now(),
-      );
-}
-
-class AppSettings {
-  // 🎨 تم و برند (سطح CMS برای ادمین)
-  String appTitle;
-  String primaryHex;
-  String fontFamily; // weight یکسان — گزینه: وزیرمتن
-  String heroImageUrl;
-  String logoEmoji;
-  // 🤖 هوش مصنوعی متخصص
-  String geminiApiKey;
-  // 🏙️ شهرها
-  String defaultCityId;
-  // 💰 کیف پول و تشویق
-  List<WalletBonusTier> bonusTiers;
-  int referralReward; // پاداش دعوت موفق (تومان)
-  double commissionRate;
-  // 📱 شبکه‌های اجتماعی
-  String telegramUrl, instagramUrl, whatsappUrl;
-  bool socialOrderComingSoon;
-
-  AppSettings({
-    this.appTitle = 'چاره',
-    this.primaryHex = '#6D28D9',
-    this.fontFamily = 'Vazirmatn',
-    this.heroImageUrl = '',
-    this.logoEmoji = '🧩',
-    this.geminiApiKey = '',
-    this.defaultCityId = 'urmia',
-    List<WalletBonusTier>? bonusTiers,
-    this.referralReward = 25000,
-    this.commissionRate = 0.15,
-    this.telegramUrl = '',
-    this.instagramUrl = '',
-    this.whatsappUrl = '',
-    this.socialOrderComingSoon = true,
-  }) : bonusTiers = bonusTiers ??
-            [WalletBonusTier(id: 't1', minAmount: 100000, bonusPercent: 7),
-             WalletBonusTier(id: 't2', minAmount: 300000, bonusPercent: 12),
-             WalletBonusTier(id: 't3', minAmount: 500000, bonusPercent: 15)];
-
-  Map<String, dynamic> toJson() => {
-        'appTitle': appTitle, 'primaryHex': primaryHex, 'fontFamily': fontFamily,
-        'heroImageUrl': heroImageUrl, 'logoEmoji': logoEmoji, 'geminiApiKey': geminiApiKey,
-        'defaultCityId': defaultCityId, 'bonusTiers': bonusTiers.map((e) => e.toJson()).toList(),
-        'referralReward': referralReward, 'commissionRate': commissionRate,
-        'telegramUrl': telegramUrl, 'instagramUrl': instagramUrl, 'whatsappUrl': whatsappUrl,
-        'socialOrderComingSoon': socialOrderComingSoon,
-      };
-
-  factory AppSettings.fromJson(Map<String, dynamic> j) => AppSettings(
-        appTitle: j['appTitle'] ?? 'چاره',
-        primaryHex: j['primaryHex'] ?? '#6D28D9',
-        fontFamily: j['fontFamily'] ?? 'Vazirmatn',
-        heroImageUrl: j['heroImageUrl'] ?? '',
-        logoEmoji: j['logoEmoji'] ?? '🧩',
-        geminiApiKey: j['geminiApiKey'] ?? '',
-        defaultCityId: j['defaultCityId'] ?? 'urmia',
-        bonusTiers: [
-          for (var i = 0; i < (j['bonusTiers'] as List? ?? []).length; i++)
-            WalletBonusTier.fromJson('t$i', (j['bonusTiers'] as List)[i] as Map<String, dynamic>)
-        ],
-        referralReward: (j['referralReward'] ?? 25000) as int,
-        commissionRate: (j['commissionRate'] ?? 0.15).toDouble(),
-        telegramUrl: j['telegramUrl'] ?? '',
-        instagramUrl: j['instagramUrl'] ?? '',
-        whatsappUrl: j['whatsappUrl'] ?? '',
-        socialOrderComingSoon: j['socialOrderComingSoon'] ?? true,
-      );
-}
-
-/// بازه‌های ساعتی استاندارد چاره
-const charehTimeSlots = ['صبح ۹ تا ۱۲', 'ظهر ۱۲ تا ۱۵', 'عصر ۱۵ تا ۱۸', 'شب ۱۸ تا ۲۱'];

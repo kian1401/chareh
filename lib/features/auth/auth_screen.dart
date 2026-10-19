@@ -19,8 +19,6 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   final _phoneCtrl = TextEditingController();
   final _otpCtrl = TextEditingController();
-  final _refCtrl = TextEditingController();
-  bool _showRef = false;
   bool _otpSent = false;
   bool _busy = false;
   String? _error;
@@ -58,11 +56,7 @@ class _AuthScreenState extends State<AuthScreen> {
       _error = null;
     });
     try {
-      await context.read<AuthState>().verifyOtp(
-            _phone,
-            _otpCtrl.text.trim(),
-            referralCode: _refCtrl.text.trim().isEmpty ? null : _refCtrl.text.trim(),
-          );
+      await context.read<AuthState>().verifyOtp(_phone, _otpCtrl.text.trim());
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('خوش آمدید! 🎉')));
@@ -116,32 +110,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   prefixIcon: Icon(Icons.phone_iphone_rounded),
                 ),
                 onChanged: (_) => setState(() {}),
-              ),
-            if (!_otpSent) ...[
-              const SizedBox(height: 6),
-              // 🎁 کد دعوت (اختیاری) — سیستم تشویق معرفی دوستان
-              TextButton.icon(
-                onPressed: () => setState(() => _showRef = !_showRef),
-                icon: Icon(_showRef ? Icons.remove_red_eye_outlined : Icons.card_giftcard_rounded, size: 18),
-                label: Text(_showRef ? 'کد دعوت ثبت می‌شود' : 'کد دعوت دارم 🎁'),
-              ),
-              if (_showRef)
-                TextField(
-                  controller: _refCtrl,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(letterSpacing: 3),
-                  decoration: const InputDecoration(
-                    hintText: 'CHR۱۲۳۴',
-                    prefixIcon: Icon(Icons.groups_rounded),
-                  ),
-                ),
-              const SizedBox(height: 8),
-              const Text(
-                'هر شماره = یک حساب دائمی واقعی 👤 داده دیگری می‌ماند',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: AppColors.subtext, height: 1.7),
-              ),
-            ]
+              )
             else
               TextField(
                 controller: _otpCtrl,
@@ -196,7 +165,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Text(
-                '🧪 نسخه آلفا: SMS واقعی به‌زودی وصل می‌شود — برای تست، هر کد ۶ رقمی را قبول می‌کنیم.',
+                '💡 نسخه‌ی دمو: هر کد ۶ رقمی (مثلاً ۱۲۳۴۵۶) پذیرفته می‌شود.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 12, color: AppColors.info, height: 1.7),
               ),
