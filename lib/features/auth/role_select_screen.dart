@@ -20,7 +20,7 @@ class RoleSelectScreen extends StatelessWidget {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF6D28D9), Color(0xFF4C1D95)],
+            colors: [Color(0xFFFF8A50), Color(0xFFE85C24), Color(0xFFC2451A)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -80,7 +80,7 @@ class RoleSelectScreen extends StatelessWidget {
                 if (isMock) ...[
                   const SizedBox(height: 16),
                   Text(
-                    'نسخه‌ی دمو با داده‌ی موک • ورود با هر کد ۶ رقمی',
+                    'نسخهٔ تست — کد تأیید ۶ رقمی روی صفحهٔ ورود نمایش داده می‌شود 🧪',
                     style: TextStyle(
                         color: Colors.white.withValues(alpha: .7), fontSize: 11.5),
                   ),
