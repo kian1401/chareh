@@ -1,3 +1,6 @@
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../auth/auth_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -18,7 +21,19 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('تنظیمات سیستم')),
+      appBar: AppBar(
+        title: const Text('تنظیمات سامانه'),
+        actions: [
+          IconButton(
+            tooltip: 'خروج از پنل مدیریت',
+            icon: const Icon(Icons.logout_rounded),
+            onPressed: () async {
+              await context.read<AuthState>().signOut();
+              if (context.mounted) context.go('/');
+            },
+          ),
+        ],
+      ),
       body: StreamBuilder<AppSettings>(
         stream: RepoHub.instance.misc.watchSettings(),
         builder: (_, snap) {

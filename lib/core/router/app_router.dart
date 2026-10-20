@@ -6,6 +6,9 @@ import '../../features/admin/bookings_screen.dart';
 import '../../features/admin/dashboard_screen.dart';
 import '../../features/admin/services_screen.dart';
 import '../../features/admin/users_screen.dart';
+import '../../features/admin/providers_screen.dart';
+import '../../features/admin/cities_screen.dart';
+import '../../features/admin/settings_screen.dart';
 import '../../features/auth/auth_screen.dart';
 import '../../features/auth/role_select_screen.dart';
 import '../../features/customer/assistant_screen.dart';
@@ -119,7 +122,10 @@ GoRouter buildRouter([String initialLocation = '/start']) {
             GoRoute(path: '/a/bookings', builder: (_, __) => const AdminBookingsScreen())
           ]),
           StatefulShellBranch(routes: [
-            GoRoute(path: '/a/users', builder: (_, __) => const AdminUsersScreen())
+            GoRoute(path: '/a/users', builder: (_, __) => const AdminUsersScreen()),
+            GoRoute(path: '/a/providers', builder: (_, __) => const AdminProvidersScreen()),
+            GoRoute(path: '/a/cities', builder: (_, __) => const AdminCitiesScreen()),
+            GoRoute(path: '/a/settings', builder: (_, __) => const AdminSettingsScreen()),
           ]),
         ],
       ),

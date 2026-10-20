@@ -209,7 +209,7 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
               for (final a in _addresses)
                 ChoiceChip(
                   avatar: const Text('📍'),
-                  label: Text('${a.title} — ${a.text}', overflow: TextOverflow.ellipsis),
+                  label: Text('${a.title} — ${a.fullText}', overflow: TextOverflow.ellipsis),
                   selected: d.address?.id == a.id,
                   onSelected: (_) => setState(() => d.address = a),
                 ),

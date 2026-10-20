@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/theme/app_theme.dart';
@@ -129,6 +130,8 @@ class AdminDashboardScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
 
+                      _AdminQuickRow(),
+                      const SizedBox(height: 16),
                       const SectionHeader('آخرین سفارش‌ها'),
                       const SizedBox(height: 8),
                       for (final b in bookings.take(5))
@@ -204,5 +207,34 @@ class _StatusChart extends StatelessWidget {
           ),
       ],
     );
+  }
+}
+
+/// 🗂️ دسترسی سریع متخصصین/شهرها/تنظیمات (تا در نوار تب جا نگیرند)
+class _AdminQuickRow extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final items = <(String, IconData, String)>[
+      ('متخصصان', Icons.engineering_rounded, '/a/providers'),
+      ('شهرها', Icons.location_city_rounded, '/a/cities'),
+      ('تنظیمات', Icons.tune_rounded, '/a/settings'),
+    ];
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      const SectionHeader('مدیریت سریع'),
+      const SizedBox(height: 4),
+      Row(children: [
+        for (final it in items)
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: FilledButton.tonalIcon(
+                onPressed: () => context.push(it.$3),
+                icon: Icon(it.$2, size: 17),
+                label: Text(it.$1, style: const TextStyle(fontSize: 12)),
+              ),
+            ),
+          ),
+      ]),
+    ]);
   }
 }
