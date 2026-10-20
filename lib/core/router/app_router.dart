@@ -20,6 +20,7 @@ import '../../features/customer/orders_screen.dart';
 import '../../features/customer/profile_screen.dart';
 import '../../features/customer/service_detail_screen.dart';
 import '../../features/customer/services_screen.dart';
+import '../../features/provider/ai_helper_screen.dart' as provider_ai;
 import '../../features/provider/dashboard_screen.dart' as provider;
 import '../../features/provider/earnings_screen.dart';
 import '../../features/provider/jobs_screen.dart';
@@ -153,7 +154,7 @@ GoRouter buildRouter([String initialLocation = '/start']) {
             routes: [
               GoRoute(
                 path: '/p/ai',
-                builder: (_, __) => const provider.AiHelperScreen(),
+                builder: (_, __) => const provider_ai.ProviderAiHelperScreen(),
               ),
             ],
           ),
