@@ -85,7 +85,17 @@ class _AuthScreenState extends State<AuthScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('خوش آمدید! 🎉')));
-        context.pop();
+        final m = context;
+        if (m.canPop()) {
+          m.pop();
+        } else {
+          final p = context.read<AuthState>().portal;
+          m.go(switch (p) {
+            UserRole.admin => '/a/home',
+            UserRole.provider => '/p/home',
+            _ => '/c/home',
+          });
+        }
       }
     } catch (e) {
       setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
