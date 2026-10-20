@@ -8,6 +8,7 @@ import '../../data/models.dart';
 import '../../data/service_locator.dart';
 import '../../shared/widgets.dart';
 import '../auth/auth_state.dart';
+import '../../shared/ui.dart';
 
 class CustomerProfileScreen extends StatelessWidget {
   const CustomerProfileScreen({super.key});
@@ -218,9 +219,12 @@ class CustomerProfileScreen extends StatelessWidget {
   }
 
   void _termsDialog(BuildContext context) {
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (ctx) => AlertDialog(
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (ctx) => SafeSheet(
         title: const Text('قوانین و مقررات 📜'),
         content: const SingleChildScrollView(
           child: Text(

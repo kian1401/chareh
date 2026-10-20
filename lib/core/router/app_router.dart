@@ -35,6 +35,8 @@ GoRouter buildRouter([String initialLocation = '/start']) {
     navigatorKey: _rootKey,
     initialLocation: initialLocation,
     routes: [
+      // 🩹 ریشه: بدون این، go('/') و صفحهٔ خطای go_router («Go to homepage») کرش می‌کردند
+      GoRoute(path: '/', redirect: (_, __) => '/start'),
       GoRoute(path: '/start', builder: (_, __) => const RoleSelectScreen()),
       GoRoute(path: '/auth', builder: (_, __) => const AuthScreen()),
 

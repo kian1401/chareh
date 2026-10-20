@@ -59,10 +59,13 @@ class _AdminServicesScreenState extends State<AdminServicesScreen> with SingleTi
     final imgCtrl = TextEditingController(text: c?.imageUrl ?? '');
     final orderCtrl = TextEditingController(text: '${c?.order ?? 9}');
     bool featured = c?.featured ?? false;
-    final ok = await showDialog<bool>(
+    final ok = await showModalBottomSheet<bool>(
       context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
       builder: (_) => StatefulBuilder(
-        builder: (_, setIn) => AlertDialog(
+        builder: (_, setIn) => SafeSheet(
           title: Text(c == null ? 'افزودن دسته‌بندی' : 'ویرایش «${c.title}»'),
           content: SingleChildScrollView(
             child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -144,10 +147,13 @@ class _AdminServicesScreenState extends State<AdminServicesScreen> with SingleTi
             {'title': TextEditingController(), 'price': TextEditingController(text: '0'), 'duration': TextEditingController()}
           ];
 
-    final ok = await showDialog<bool>(
+    final ok = await showModalBottomSheet<bool>(
       context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
       builder: (_) => StatefulBuilder(
-        builder: (_, setIn) => AlertDialog(
+        builder: (_, setIn) => SafeSheet(
           title: Text(s == null ? 'افزودن سرویس زیرمجموعه' : 'ویرایش سرویس'),
           content: SizedBox(
             width: 460,
@@ -312,9 +318,12 @@ class _CategoriesTab extends StatelessWidget {
   }
 
   void _deleteCategory(BuildContext context, Category c) async {
-    final ok = await showDialog<bool>(
+    final ok = await showModalBottomSheet<bool>(
       context: context,
-      builder: (_) => AlertDialog(
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (_) => SafeSheet(
         title: const Text('حذف دسته؟'),
         content: Text('«${c.title}» حذف شود؟ سرویس‌های زیرمجموعه‌اش هم پنهان می‌شوند.'),
         actions: [

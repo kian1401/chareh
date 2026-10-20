@@ -169,9 +169,12 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
 
   void _editString(BuildContext context, AppSettings s, String label, String value, void Function(String) setter, {bool secret = false}) {
     final ctrl = TextEditingController(text: secret ? '' : value);
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (_) => AlertDialog(
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (_) => SafeSheet(
         title: Text(label),
         content: TextField(controller: ctrl, autofocus: true, decoration: InputDecoration(hintText: label)),
         actions: [
@@ -196,9 +199,12 @@ class _AdminSettingsScreenState extends State<AdminSettingsScreen> {
   void _addBonusTier(BuildContext context, AppSettings s) async {
     final minCtrl = TextEditingController(text: '200000');
     final pctCtrl = TextEditingController(text: '10');
-    final ok = await showDialog<bool>(
+    final ok = await showModalBottomSheet<bool>(
       context: context,
-      builder: (_) => AlertDialog(
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (_) => SafeSheet(
         title: const Text('پلهٔ بونس جدید'),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
           TextField(controller: minCtrl, keyboardType: TextInputType.number,

@@ -164,3 +164,42 @@ class NeedLogin extends StatelessWidget {
     );
   }
 }
+
+/// 🩹 جایگزین امن AlertDialog در وب: پاپ AlertDialog روی CanvasKit سرفیس رندر را نابود می‌کرد؛
+/// باتم‌شیت همان UX را بدون کرش می‌دهد (در موبایل هم طبیعی‌تر است).
+class SafeSheet extends StatelessWidget {
+  const SafeSheet({super.key, this.title, this.content, this.actions, this.titlePadding});
+  final Widget? title;
+  final Widget? content;
+  final List<Widget>? actions;
+  final EdgeInsetsGeometry? titlePadding;
+
+  @override
+  Widget build(BuildContext context) {
+    final bottom = MediaQuery.of(context).viewInsets.bottom;
+    return Padding(
+      padding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: bottom + 16),
+      child: SingleChildScrollView(
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          if (title != null)
+            DefaultTextStyle(
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800) ??
+                  const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+              child: title!,
+            ),
+          if (title != null) const SizedBox(height: 10),
+          if (content != null) content!,
+          if (actions != null && actions!.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            Row(children: [
+              for (var i = 0; i < actions!.length; i++) ...[
+                if (i > 0) const SizedBox(width: 10),
+                Expanded(child: actions![i]),
+              ],
+            ]),
+          ],
+        ]),
+      ),
+    );
+  }
+}

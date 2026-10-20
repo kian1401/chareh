@@ -8,6 +8,7 @@ import '../../data/models.dart';
 import '../../data/service_locator.dart';
 import '../../shared/widgets.dart';
 import '../auth/auth_state.dart';
+import '../../shared/ui.dart';
 
 class OrderDetailScreen extends StatefulWidget {
   const OrderDetailScreen({super.key, required this.id});
@@ -37,9 +38,12 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   ];
 
   Future<void> _cancel(Booking b) async {
-    final sure = await showDialog<bool>(
+    final sure = await showModalBottomSheet<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (ctx) => SafeSheet(
         title: const Text('لغو سفارش؟'),
         content: const Text(
             'لغو تا ۲ ساعت قبل از شروع سرویس رایگان است و مبلغ به کیف پول‌تان برمی‌گردد.'),

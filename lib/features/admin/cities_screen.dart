@@ -78,9 +78,12 @@ class AdminCitiesScreen extends StatelessWidget {
   void _addCity(BuildContext context) {
     final nameCtrl = TextEditingController();
     final provCtrl = TextEditingController();
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (_) => AlertDialog(
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (_) => SafeSheet(
         title: const Text('افزودن شهر'),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
           TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'نام شهر')),

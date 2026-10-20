@@ -71,15 +71,19 @@ class AdminProvidersScreen extends StatelessWidget {
     bool verified = p?.verified ?? true;
     String level = p?.level ?? 'حرفه‌ای';
 
-    final ok = await showDialog<bool>(
+    // 🩹 روی وب/اCanvasKit، پاپ AlertDialog باعث نابودی سرفیس رندر می‌شد — باتم‌شیت سالم است
+    final ok = await showModalBottomSheet<bool>(
       context: context,
-      builder: (_) => StatefulBuilder(
-        builder: (_, setIn) => AlertDialog(
-          title: Text(p == null ? '🌱 تعریف متخصص جدید' : 'ویرایش «${p.name}»'),
-          content: SizedBox(
-            width: 460,
-            child: SingleChildScrollView(
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (_, setIn) => Padding(
+          padding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: MediaQuery.of(ctx).viewInsets.bottom + 16),
+          child: SingleChildScrollView(
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Text(p == null ? '🌱 تعریف متخصص جدید' : 'ویرایش «${p.name}»',
+                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
                 TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'نام کامل')),
                 TextField(
                   controller: phoneCtrl,
@@ -132,14 +136,15 @@ class AdminProvidersScreen extends StatelessWidget {
                   onChanged: (v) => setIn(() => verified = v),
                   title: const Text('✅ تایید هویت و مدارک'),
                 ),
+                const SizedBox(height: 6),
+                Row(children: [
+                  OutlinedButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('انصراف')),
+                  const SizedBox(width: 10),
+                  Expanded(child: FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('ذخیره'))),
+                ]),
               ]),
             ),
           ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('انصراف')),
-            FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('ذخیره')),
-          ],
-        ),
       ),
     );
     if (ok == true) {

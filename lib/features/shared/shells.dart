@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
+import '../../shared/ui.dart';
+import '../auth/auth_state.dart';
 
 class CustomerShell extends StatelessWidget {
   const CustomerShell({super.key, required this.shell});
@@ -45,15 +49,33 @@ class AdminShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _Shell(
-      shell: shell,
-      items: const [
-        (Icons.dashboard_rounded, Icons.dashboard_outlined, 'داشبورد'),
-        (Icons.category_rounded, Icons.category_outlined, 'سرویس‌ها'),
-        (Icons.receipt_long_rounded, Icons.receipt_long_outlined, 'رزروها'),
-        (Icons.group_rounded, Icons.group_outlined, 'کاربران'),
-      ],
-    );
+    const items = [
+      (Icons.dashboard_rounded, Icons.dashboard_outlined, 'داشبورد'),
+      (Icons.category_rounded, Icons.category_outlined, 'سرویس‌ها'),
+      (Icons.receipt_long_rounded, Icons.receipt_long_outlined, 'رزروها'),
+      (Icons.group_rounded, Icons.group_outlined, 'کاربران'),
+    ];
+    // 🔒 گارد سراسری پنل مدیریت: بدون نقش ادمین هیچ‌کدام از زیرصفحه‌ها (رزروها/سرویس‌ها/کاربران/تنظیمات) داده نشان نمی‌دهند
+    if (!context.watch<AuthState>().isAdmin) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('پنل مدیریت')),
+        body: const NeedLogin(
+          emoji: '🛡️',
+          title: 'به‌عنوان مدیر وارد شوید',
+          hint: 'پنل مدیریت فقط برای مدیر ارشد و مدیران مجاز است — با شمارهٔ خود وارد شوید',
+        ),
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: shell.currentIndex,
+          onDestinationSelected: (i) =>
+              shell.goBranch(i, initialLocation: i == shell.currentIndex),
+          destinations: [
+            for (final (active, idle, label) in items)
+              NavigationDestination(icon: Icon(idle), selectedIcon: Icon(active), label: label),
+          ],
+        ),
+      );
+    }
+    return _Shell(shell: shell, items: items);
   }
 }
 

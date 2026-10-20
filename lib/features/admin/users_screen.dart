@@ -191,9 +191,12 @@ class _AdminsSection extends StatelessWidget {
 
   static void _addAdminDialog(BuildContext context) {
     final ctrl = TextEditingController();
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (ctx) => AlertDialog(
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (ctx) => SafeSheet(
         title: const Text('➕ ثبت مدیر جدید'),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
           const Text(
