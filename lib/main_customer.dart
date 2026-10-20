@@ -10,10 +10,11 @@ import 'firebase_options.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (!BackendConfig.useMock) {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   }
-  runApp(CharehApp(
-    initialLocation: '/c/home',
-    initialPortal: UserRole.customer,
-  ));
+  runApp(
+    CharehApp(initialLocation: '/c/home', initialPortal: UserRole.customer),
+  );
 }

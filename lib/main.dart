@@ -25,7 +25,9 @@ Future<void> main() async {
     return true;
   }());
   if (!BackendConfig.useMock) {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   }
   runApp(CharehApp());
 }

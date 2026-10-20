@@ -32,15 +32,16 @@ class CustomerProfileScreen extends StatelessWidget {
                       children: [
                         const Text('👋', style: TextStyle(fontSize: 40)),
                         const SizedBox(height: 8),
-                        const Text('هنوز وارد نشده‌اید',
-                            style: TextStyle(fontWeight: FontWeight.w800)),
+                        const Text(
+                          'هنوز وارد نشده‌اید',
+                          style: TextStyle(fontWeight: FontWeight.w800),
+                        ),
                         const SizedBox(height: 12),
                         ElevatedButton.icon(
                           onPressed: () => context.push('/auth'),
                           icon: const Icon(Icons.login_rounded),
                           label: const Text('ورود / ثبت‌نام'),
                         ),
-
                       ],
                     )
                   : Row(
@@ -51,13 +52,21 @@ class CustomerProfileScreen extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(user.name,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w900, fontSize: 16)),
+                              Text(
+                                user.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 16,
+                                ),
+                              ),
                               const SizedBox(height: 4),
-                              Text(toFaDigits(user.phone),
-                                  style: const TextStyle(
-                                      color: AppColors.subtext, fontSize: 12.5)),
+                              Text(
+                                toFaDigits(user.phone),
+                                style: const TextStyle(
+                                  color: AppColors.subtext,
+                                  fontSize: 12.5,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -66,11 +75,14 @@ class CustomerProfileScreen extends StatelessWidget {
                             await auth.signOut();
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('خارج شدید')));
+                                const SnackBar(content: Text('خارج شدید')),
+                              );
                             }
                           },
-                          icon: const Icon(Icons.logout_rounded,
-                              color: AppColors.danger),
+                          icon: const Icon(
+                            Icons.logout_rounded,
+                            color: AppColors.danger,
+                          ),
                           tooltip: 'خروج',
                         ),
                       ],
@@ -92,20 +104,35 @@ class CustomerProfileScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('کیف پول',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w800, fontSize: 13)),
+                          const Text(
+                            'کیف پول',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 13,
+                            ),
+                          ),
                           PriceLabel(user.walletBalance),
                         ],
                       ),
                     ),
                     if (RepoHub.instance.isMock)
                       FilledButton.tonal(
-                        onPressed: () {
-                          user.walletBalance += 200000;
+                        onPressed: () async {
+                          // 💳 شارژ واقعی‌نما با پلهٔ بونس تنظیمات ادمین
+                          final r = await RepoHub.instance.misc.chargeWallet(
+                            user.id,
+                            500000,
+                          );
                           auth.refresh();
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                              content: Text('۲۰۰٬۰۰۰ تومان شارژ شد (دمو) 💜')));
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  '${faPrice(r.total)} شارژ شد + ${faPrice(r.bonus)} هدیه 🎁',
+                                ),
+                              ),
+                            );
+                          }
                         },
                         child: const Text('شارژ +'),
                       ),
@@ -148,32 +175,39 @@ class CustomerProfileScreen extends StatelessWidget {
             child: Column(
               children: [
                 _MenuTile(
-                    icon: Icons.location_on_outlined,
-                    title: 'آدرس‌های من',
-                    onTap: () => _addressesSheet(context)),
+                  icon: Icons.location_on_outlined,
+                  title: 'آدرس‌های من',
+                  onTap: () => _addressesSheet(context),
+                ),
                 _MenuTile(
-                    icon: Icons.notifications_outlined,
-                    title: 'اعلان‌ها',
-                    onTap: () => context.push('/notifications')),
+                  icon: Icons.notifications_outlined,
+                  title: 'اعلان‌ها',
+                  onTap: () => context.push('/notifications'),
+                ),
                 _MenuTile(
-                    icon: Icons.smart_toy_outlined,
-                    title: 'دستیار هوشمند و پشتیبانی',
-                    onTap: () => context.go('/c/assistant')),
+                  icon: Icons.smart_toy_outlined,
+                  title: 'دستیار هوشمند و پشتیبانی',
+                  onTap: () => context.go('/c/assistant'),
+                ),
                 _MenuTile(
-                    icon: Icons.description_outlined,
-                    title: 'قوانین و مقررات',
-                    onTap: () => _termsDialog(context)),
+                  icon: Icons.description_outlined,
+                  title: 'قوانین و مقررات',
+                  onTap: () => _termsDialog(context),
+                ),
                 _MenuTile(
-                    icon: Icons.swap_horiz_rounded,
-                    title: 'تغییر پرتال (مشتری ⇄ متخصص ⇄ ادمین)',
-                    onTap: () => context.go('/start')),
+                  icon: Icons.swap_horiz_rounded,
+                  title: 'تغییر پرتال (مشتری ⇄ متخصص ⇄ ادمین)',
+                  onTap: () => context.go('/start'),
+                ),
               ],
             ),
           ),
           const SizedBox(height: 16),
           const Center(
-            child: Text('چاره نسخه‌ی ۱٫۰ — ساخته‌شده با 💜',
-                style: TextStyle(color: AppColors.subtext, fontSize: 11)),
+            child: Text(
+              'چاره نسخه‌ی ۱٫۲ — ساخته‌شده با 🧡 برای ارومیه',
+              style: TextStyle(color: AppColors.subtext, fontSize: 11),
+            ),
           ),
         ],
       ),
@@ -182,8 +216,9 @@ class CustomerProfileScreen extends StatelessWidget {
 
   void _addressesSheet(BuildContext context) async {
     final auth = context.read<AuthState>();
-    final list = await RepoHub.instance.misc
-        .getAddresses(auth.user?.id ?? 'u_c1');
+    final list = await RepoHub.instance.misc.getAddresses(
+      auth.user?.id ?? 'u_c1',
+    );
     if (!context.mounted) return;
     showModalBottomSheet(
       context: context,
@@ -194,21 +229,34 @@ class CustomerProfileScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('آدرس‌های من 📍',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+              const Text(
+                'آدرس‌های من 📍',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+              ),
               const SizedBox(height: 12),
               for (final a in list)
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.location_on_outlined),
-                  title: Text(a.title,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w700, fontSize: 13)),
-                  subtitle: Text(a.text, style: const TextStyle(fontSize: 12, height: 1.6)),
+                  title: Text(
+                    a.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
+                  ),
+                  subtitle: Text(
+                    a.text,
+                    style: const TextStyle(fontSize: 12, height: 1.6),
+                  ),
                   trailing: a.isDefault
-                      ? const Text('پیش‌فرض',
+                      ? const Text(
+                          'پیش‌فرض',
                           style: TextStyle(
-                              color: AppColors.success, fontSize: 11))
+                            color: AppColors.success,
+                            fontSize: 11,
+                          ),
+                        )
                       : null,
                 ),
             ],
@@ -238,7 +286,9 @@ class CustomerProfileScreen extends StatelessWidget {
         ),
         actions: [
           FilledButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('متوجه شدم')),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('متوجه شدم'),
+          ),
         ],
       ),
     );
@@ -246,7 +296,11 @@ class CustomerProfileScreen extends StatelessWidget {
 }
 
 class _MenuTile extends StatelessWidget {
-  const _MenuTile({required this.icon, required this.title, required this.onTap});
+  const _MenuTile({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+  });
   final IconData icon;
   final String title;
   final VoidCallback onTap;
@@ -256,10 +310,15 @@ class _MenuTile extends StatelessWidget {
     return ListTile(
       onTap: onTap,
       leading: Icon(icon, color: AppColors.primary),
-      title: Text(title,
-          style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600)),
-      trailing:
-          const Icon(Icons.arrow_back_ios_new_rounded, size: 14, color: AppColors.subtext),
+      title: Text(
+        title,
+        style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600),
+      ),
+      trailing: const Icon(
+        Icons.arrow_back_ios_new_rounded,
+        size: 14,
+        color: AppColors.subtext,
+      ),
     );
   }
 }

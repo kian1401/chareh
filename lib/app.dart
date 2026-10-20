@@ -9,11 +9,8 @@ import 'data/models.dart';
 import 'features/auth/auth_state.dart';
 
 class CharehApp extends StatelessWidget {
-  CharehApp({
-    super.key,
-    this.initialLocation = '/start',
-    this.initialPortal,
-  }) : router = buildRouter(initialLocation);
+  CharehApp({super.key, this.initialLocation = '/start', this.initialPortal})
+    : router = buildRouter(initialLocation);
 
   /// نقطه‌ی شروع: '/start' (انتخاب پرتال) یا مستقیم به یک پرتال (فلیورها)
   final String initialLocation;

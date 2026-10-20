@@ -23,7 +23,10 @@ class ProviderAiHelperScreen extends StatefulWidget {
 class _ProviderAiHelperScreenState extends State<ProviderAiHelperScreen> {
   final _ctrl = TextEditingController();
   final List<_Msg> _msgs = [
-    _Msg('👋 سلاممتخصص! من کارشناس چارهام. علائم دستگاه را بگو تا راهنمای قدم‌به‌قدم بگم — مثلا «یخچال سامسونگ سرد نمی‌کند» یا «نقشهٔ تاسیسات را چطور بخوانم؟». اگر ادمین کلید Gemini را بچسباند از اینجا به AI واقعی وصل می‌شم 🚀', false),
+    _Msg(
+      '👋 سلاممتخصص! من کارشناس چارهام. علائم دستگاه را بگو تا راهنمای قدم‌به‌قدم بگم — مثلا «یخچال سامسونگ سرد نمی‌کند» یا «نقشهٔ تاسیسات را چطور بخوانم؟». اگر ادمین کلید Gemini را بچسباند از اینجا به AI واقعی وصل می‌شم 🚀',
+      false,
+    ),
   ];
   bool _busy = false;
 
@@ -41,76 +44,98 @@ class _ProviderAiHelperScreenState extends State<ProviderAiHelperScreen> {
     if (!auth.loggedIn) {
       return Scaffold(
         appBar: AppBar(title: const Text('دستیار متخصص')),
-        body: const NeedLogin(emoji: '🤖', title: 'برای استفاده از دستیار هوشمند وارد حساب متخصص شو'),
+        body: const NeedLogin(
+          emoji: '🤖',
+          title: 'برای استفاده از دستیار هوشمند وارد حساب متخصص شو',
+        ),
       );
     }
     return Scaffold(
       appBar: AppBar(
-        title: Row(children: const [
-          Text('🤖'), SizedBox(width: 8),
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('دستیار عیب‌یابی متخصص', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
-            Text('آفلاین فعال • اتصال Gemini در مسیر', style: TextStyle(fontSize: 10, color: Color(0xFF9CA3AF))),
-          ]),
-        ]),
+        title: Row(
+          children: const [
+            Text('🤖'),
+            SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'دستیار عیب‌یابی متخصص',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+                ),
+                Text(
+                  'آفلاین فعال • اتصال Gemini در مسیر',
+                  style: TextStyle(fontSize: 10, color: Color(0xFF9CA3AF)),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
-      body: Column(children: [
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              for (final m in _msgs) _bubble(m),
-              if (_busy)
-                const Padding(
-                  padding: EdgeInsets.all(8),
-                  child: Text('🤔 در حال تحلیل...', style: TextStyle(color: Color(0xFF6B7280))),
-                ),
-            ],
-          ),
-        ),
-        // پیشنهادها
-        SizedBox(
-          height: 42,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            children: [
-              for (final s in _suggestions)
-                Padding(
-                  padding: const EdgeInsets.only(left: 6),
-                  child: ActionChip(
-                    label: Text(s, style: const TextStyle(fontSize: 11.5)),
-                    onPressed: _busy ? null : () => _ask(s),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                for (final m in _msgs) _bubble(m),
+                if (_busy)
+                  const Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Text(
+                      '🤔 در حال تحلیل...',
+                      style: TextStyle(color: Color(0xFF6B7280)),
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
-        ),
-        SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
-            child: Row(children: [
-              Expanded(
-                child: TextField(
-                  controller: _ctrl,
-                  textInputAction: TextInputAction.send,
-                  onSubmitted: _busy ? null : _ask,
-                  decoration: const InputDecoration(
-                    hintText: 'علائم و ایراد را توصیف کن...',
-                    prefixIcon: Icon(Icons.build_circle_rounded),
+          // پیشنهادها
+          SizedBox(
+            height: 42,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              children: [
+                for (final s in _suggestions)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 6),
+                    child: ActionChip(
+                      label: Text(s, style: const TextStyle(fontSize: 11.5)),
+                      onPressed: _busy ? null : () => _ask(s),
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              IconButton.filled(
-                onPressed: _busy ? null : () => _ask(_ctrl.text),
-                icon: const Icon(Icons.send_rounded),
-              ),
-            ]),
+              ],
+            ),
           ),
-        ),
-      ]),
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _ctrl,
+                      textInputAction: TextInputAction.send,
+                      onSubmitted: _busy ? null : _ask,
+                      decoration: const InputDecoration(
+                        hintText: 'علائم و ایراد را توصیف کن...',
+                        prefixIcon: Icon(Icons.build_circle_rounded),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton.filled(
+                    onPressed: _busy ? null : () => _ask(_ctrl.text),
+                    icon: const Icon(Icons.send_rounded),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -120,17 +145,22 @@ class _ProviderAiHelperScreenState extends State<ProviderAiHelperScreen> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.82),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.sizeOf(context).width * 0.82,
+        ),
         decoration: BoxDecoration(
           color: m.mine ? Theme.of(context).colorScheme.primary : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: m.mine ? null : Border.all(color: const Color(0xFFEDEAF6)),
         ),
-        child: Text(m.text,
-            style: TextStyle(
-              fontSize: 13.5, height: 1.8,
-              color: m.mine ? Colors.white : const Color(0xFF1F2937),
-            )),
+        child: Text(
+          m.text,
+          style: TextStyle(
+            fontSize: 13.5,
+            height: 1.8,
+            color: m.mine ? Colors.white : const Color(0xFF1F2937),
+          ),
+        ),
       ),
     );
   }

@@ -17,7 +17,10 @@ class EarningsScreen extends StatelessWidget {
     if (auth.user?.role != UserRole.provider) {
       return Scaffold(
         appBar: AppBar(title: const Text('درآمد')),
-        body: const EmptyState(emoji: '🔐', title: 'ابتدا به‌عنوان سرویس‌دهنده وارد شوید'),
+        body: const EmptyState(
+          emoji: '🔐',
+          title: 'ابتدا به‌عنوان سرویس‌دهنده وارد شوید',
+        ),
       );
     }
     final pid = auth.effectiveProviderId!;
@@ -28,10 +31,12 @@ class EarningsScreen extends StatelessWidget {
         stream: RepoHub.instance.providers.watchEarnings(pid),
         builder: (_, snap) {
           final list = snap.data ?? [];
-          final settled =
-              list.where((e) => e.settled).fold<int>(0, (s, e) => s + e.amount);
-          final pending =
-              list.where((e) => !e.settled).fold<int>(0, (s, e) => s + e.amount);
+          final settled = list
+              .where((e) => e.settled)
+              .fold<int>(0, (s, e) => s + e.amount);
+          final pending = list
+              .where((e) => !e.settled)
+              .fold<int>(0, (s, e) => s + e.amount);
 
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -49,34 +54,48 @@ class EarningsScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('موجودی قابل برداشت',
-                        style: TextStyle(color: Colors.white70, fontSize: 12)),
+                    const Text(
+                      'موجودی قابل برداشت',
+                      style: TextStyle(color: Colors.white70, fontSize: 12),
+                    ),
                     const SizedBox(height: 6),
-                    Text(faPrice(settled),
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 26,
-                            fontWeight: FontWeight.w900)),
+                    Text(
+                      faPrice(settled),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 26,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     Row(
                       children: [
                         Chip(
                           avatar: const Text('⏳'),
-                          label: Text('در انتظار تسویه: ${faPrice(pending, unit: false)}',
-                              style: const TextStyle(fontSize: 11, color: Colors.white)),
+                          label: Text(
+                            'در انتظار تسویه: ${faPrice(pending, unit: false)}',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: Colors.white,
+                            ),
+                          ),
                           backgroundColor: Colors.white24,
                           side: BorderSide.none,
                         ),
                         const Spacer(),
                         FilledButton(
                           style: FilledButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: AppColors.success),
+                            backgroundColor: Colors.white,
+                            foregroundColor: AppColors.success,
+                          ),
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text(
-                                        'درخواست تسویه ثبت شد — تا ۲۴ ساعت آینده واریز می‌شود (دمو)')));
+                              const SnackBar(
+                                content: Text(
+                                  'درخواست تسویه ثبت شد — تا ۲۴ ساعت آینده واریز می‌شود (دمو)',
+                                ),
+                              ),
+                            );
                           },
                           child: const Text('تسویه حساب'),
                         ),
@@ -94,7 +113,10 @@ class EarningsScreen extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Text(
                     '* مبالغ پس از کسر کمیسیون پلتفرم (${toFaDigits(((cSnap.data ?? .15) * 100).round())}٪) محاسبه شده‌اند',
-                    style: const TextStyle(fontSize: 10.5, color: AppColors.subtext),
+                    style: const TextStyle(
+                      fontSize: 10.5,
+                      color: AppColors.subtext,
+                    ),
                   ),
                 ),
               ),
@@ -103,26 +125,39 @@ class EarningsScreen extends StatelessWidget {
                   margin: const EdgeInsets.only(bottom: 8),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: (e.settled ? AppColors.success : AppColors.warning)
-                          .withValues(alpha: .12),
+                      backgroundColor:
+                          (e.settled ? AppColors.success : AppColors.warning)
+                              .withValues(alpha: .12),
                       child: Text(e.settled ? '✅' : '⏳'),
                     ),
-                    title: Text(e.title,
-                        style: const TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w700)),
-                    subtitle: Text(e.dateLabel,
-                        style: const TextStyle(fontSize: 11, color: AppColors.subtext)),
+                    title: Text(
+                      e.title,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    subtitle: Text(
+                      e.dateLabel,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.subtext,
+                      ),
+                    ),
                     trailing: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         PriceLabel(e.amount),
-                        Text(e.settled ? 'تسویه شد' : 'در انتظار',
-                            style: TextStyle(
-                                fontSize: 10,
-                                color: e.settled
-                                    ? AppColors.success
-                                    : AppColors.warning)),
+                        Text(
+                          e.settled ? 'تسویه شد' : 'در انتظار',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: e.settled
+                                ? AppColors.success
+                                : AppColors.warning,
+                          ),
+                        ),
                       ],
                     ),
                   ),

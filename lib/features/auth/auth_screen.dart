@@ -12,7 +12,10 @@ String _toEnDigits(String v) {
   final b = StringBuffer();
   for (final ch in v.characters) {
     var i = fa.indexOf(ch);
-    if (i >= 0) { b.write(i); continue; }
+    if (i >= 0) {
+      b.write(i);
+      continue;
+    }
     i = ar.indexOf(ch);
     b.write(i >= 0 ? i : ch);
   }
@@ -61,7 +64,8 @@ class _AuthScreenState extends State<AuthScreen> {
       setState(() {
         _otpSent = true;
         _devCode = code;
-        _otpCtrl.text = code; // پرکردن خودکار — کاربر فقط «تایید و ورود» را می‌زند
+        _otpCtrl.text =
+            code; // پرکردن خودکار — کاربر فقط «تایید و ورود» را می‌زند
       });
     } catch (e) {
       setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
@@ -78,13 +82,15 @@ class _AuthScreenState extends State<AuthScreen> {
     });
     try {
       await context.read<AuthState>().verifyOtp(
-            _phone,
-            _otp,
-            referralCode: _refCtrl.text.trim().isEmpty ? null : _refCtrl.text.trim(),
-          );
+        _phone,
+        _otp,
+        referralCode: _refCtrl.text.trim().isEmpty
+            ? null
+            : _refCtrl.text.trim(),
+      );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('خوش آمدید! 🎉')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('خوش آمدید! 🎉')));
         final m = context;
         if (m.canPop()) {
           m.pop();
@@ -115,8 +121,15 @@ class _AuthScreenState extends State<AuthScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(portal == UserRole.admin ? '🛡️' : portal == UserRole.provider ? '🧑‍🔧' : '📱',
-                textAlign: TextAlign.center, style: const TextStyle(fontSize: 48)),
+            Text(
+              portal == UserRole.admin
+                  ? '🛡️'
+                  : portal == UserRole.provider
+                  ? '🧑‍🔧'
+                  : '📱',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 48),
+            ),
             const SizedBox(height: 12),
             Text(
               _otpSent ? 'کد تایید را وارد کنید' : 'با شماره موبایل وارد شوید',
@@ -129,7 +142,11 @@ class _AuthScreenState extends State<AuthScreen> {
                   ? 'کد ۶ رقمی برای ${toFaDigits(_phone)} صادر شد'
                   : 'ورود به پرتال «${portal.fa}» — برای ادامه شماره موبایل خود را وارد کنید',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.subtext, fontSize: 13, height: 1.8),
+              style: const TextStyle(
+                color: AppColors.subtext,
+                fontSize: 13,
+                height: 1.8,
+              ),
             ),
             if (portal == UserRole.admin && !_otpSent) ...[
               const SizedBox(height: 10),
@@ -138,12 +155,18 @@ class _AuthScreenState extends State<AuthScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.warning.withValues(alpha: .1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.warning.withValues(alpha: .35)),
+                  border: Border.all(
+                    color: AppColors.warning.withValues(alpha: .35),
+                  ),
                 ),
                 child: const Text(
                   '🔒 ورود به پنل مدیریت محدود است: فقط شمارهٔ ارشد «۰۹۱۴۸۰۰۲۴۶۱» یا شماره‌هایی که او در تب کاربران ثبت کرده کد دریافت می‌کنند.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12, height: 1.8, color: AppColors.text),
+                  style: TextStyle(
+                    fontSize: 12,
+                    height: 1.8,
+                    color: AppColors.text,
+                  ),
                 ),
               ),
             ],
@@ -167,8 +190,15 @@ class _AuthScreenState extends State<AuthScreen> {
               const SizedBox(height: 6),
               TextButton.icon(
                 onPressed: () => setState(() => _showRef = !_showRef),
-                icon: Icon(_showRef ? Icons.remove_red_eye_outlined : Icons.card_giftcard_rounded, size: 18),
-                label: Text(_showRef ? 'کد دعوت ثبت می‌شود' : 'کد دعوت دارم 🎁'),
+                icon: Icon(
+                  _showRef
+                      ? Icons.remove_red_eye_outlined
+                      : Icons.card_giftcard_rounded,
+                  size: 18,
+                ),
+                label: Text(
+                  _showRef ? 'کد دعوت ثبت می‌شود' : 'کد دعوت دارم 🎁',
+                ),
               ),
               if (_showRef)
                 TextField(
@@ -184,35 +214,64 @@ class _AuthScreenState extends State<AuthScreen> {
               const Text(
                 'هر شماره = یک حساب دائمی واقعی 👤 (بدون حساب‌های نمایشی)',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: AppColors.subtext, height: 1.7),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.subtext,
+                  height: 1.7,
+                ),
               ),
             ] else ...[
               // 🧪 کارت نمایش کد — چون SMS فعال نیست، کد را همین‌جا می‌بینی
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 14,
+                  horizontal: 12,
+                ),
                 margin: const EdgeInsets.only(bottom: 14),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [
-                    AppColors.primary.withValues(alpha: .12),
-                    AppColors.accent.withValues(alpha: .1),
-                  ]),
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.primary.withValues(alpha: .12),
+                      AppColors.accent.withValues(alpha: .1),
+                    ],
+                  ),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.primary.withValues(alpha: .3)),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: .3),
+                  ),
                 ),
-                child: Column(children: [
-                  const Text('🧪 حالت تست — کد تأیید شما:',
-                      style: TextStyle(fontSize: 12.5, color: AppColors.subtext)),
-                  const SizedBox(height: 6),
-                  Text(toFaDigits(_devCode).split('').join(' '),
+                child: Column(
+                  children: [
+                    const Text(
+                      '🧪 حالت تست — کد تأیید شما:',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        color: AppColors.subtext,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      toFaDigits(_devCode).split('').join(' '),
                       textDirection: TextDirection.ltr,
                       style: const TextStyle(
-                          fontSize: 30, fontWeight: FontWeight.w900, letterSpacing: 6,
-                          color: AppColors.primary)),
-                  const SizedBox(height: 4),
-                  const Text('به‌صورت خودکار وارد شد؛ فقط «تایید و ورود» را بزنید ✅',
+                        fontSize: 30,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 6,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'به‌صورت خودکار وارد شد؛ فقط «تایید و ورود» را بزنید ✅',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 11, color: AppColors.subtext, height: 1.6)),
-                ]),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppColors.subtext,
+                        height: 1.6,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               TextField(
                 controller: _otpCtrl,
@@ -221,7 +280,11 @@ class _AuthScreenState extends State<AuthScreen> {
                 textDirection: TextDirection.ltr,
                 textAlign: TextAlign.center,
                 autofocus: true,
-                style: const TextStyle(fontSize: 22, letterSpacing: 8, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 22,
+                  letterSpacing: 8,
+                  fontWeight: FontWeight.bold,
+                ),
                 decoration: const InputDecoration(
                   hintText: '••••••',
                   counterText: '',
@@ -240,42 +303,57 @@ class _AuthScreenState extends State<AuthScreen> {
                   color: AppColors.danger.withValues(alpha: .08),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Text(_error!,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: AppColors.danger, fontSize: 12.5, height: 1.7)),
+                child: Text(
+                  _error!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: AppColors.danger,
+                    fontSize: 12.5,
+                    height: 1.7,
+                  ),
+                ),
               ),
             ],
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _busy
                   ? null
-                  : (_otpSent ? (_otp.length == 6 ? _verify : null) : (_phoneValid ? _sendOtp : null)),
+                  : (_otpSent
+                        ? (_otp.length == 6 ? _verify : null)
+                        : (_phoneValid ? _sendOtp : null)),
               child: _busy
                   ? const SizedBox(
                       width: 22,
                       height: 22,
-                      child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: Colors.white,
+                      ),
+                    )
                   : Text(_otpSent ? 'تایید و ورود' : 'ارسال کد تایید'),
             ),
             if (_otpSent) ...[
               const SizedBox(height: 8),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                TextButton(
-                  onPressed: _busy
-                      ? null
-                      : () => setState(() {
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: _busy
+                        ? null
+                        : () => setState(() {
                             _otpSent = false;
                             _otpCtrl.clear();
                             _devCode = '';
                           }),
-                  child: const Text('ویرایش شماره'),
-                ),
-                TextButton.icon(
-                  onPressed: _busy ? null : _sendOtp,
-                  icon: const Icon(Icons.refresh_rounded, size: 17),
-                  label: const Text('ارسال مجدد کد'),
-                ),
-              ]),
+                    child: const Text('ویرایش شماره'),
+                  ),
+                  TextButton.icon(
+                    onPressed: _busy ? null : _sendOtp,
+                    icon: const Icon(Icons.refresh_rounded, size: 17),
+                    label: const Text('ارسال مجدد کد'),
+                  ),
+                ],
+              ),
             ],
             const SizedBox(height: 16),
             Container(
@@ -287,7 +365,11 @@ class _AuthScreenState extends State<AuthScreen> {
               child: const Text(
                 '📩 نسخه آلفا: SMS به‌زودی با کاوه‌نگار/قاصدک وصل می‌شود — تا آن زمان کد تأیید روی همین صفحه نمایش داده می‌شود.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: AppColors.info, height: 1.7),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.info,
+                  height: 1.7,
+                ),
               ),
             ),
           ],

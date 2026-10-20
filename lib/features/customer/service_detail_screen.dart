@@ -31,7 +31,9 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
       builder: (_, snap) {
         final s = snap.data;
         if (snap.connectionState == ConnectionState.waiting && s == null) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
         if (s == null) {
           return const Scaffold(
@@ -40,7 +42,13 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
         }
         final options = s.options.isNotEmpty
             ? s.options
-            : [ServiceOption(id: 'o0', title: 'تعرفه‌ی پایه', price: s.basePrice)];
+            : [
+                ServiceOption(
+                  id: 'o0',
+                  title: 'تعرفه‌ی پایه',
+                  price: s.basePrice,
+                ),
+              ];
         if (_optIndex >= options.length) _optIndex = 0;
         final selected = options[_optIndex];
         var total = selected.price;
@@ -57,13 +65,18 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                 onPressed: () {
                   if (!auth.loggedIn) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('برای علاقه‌مندی‌ها ابتدا وارد شوید')));
+                      const SnackBar(
+                        content: Text('برای علاقه‌مندی‌ها ابتدا وارد شوید'),
+                      ),
+                    );
                     return;
                   }
                   auth.toggleFavorite(s.id);
                 },
                 icon: Icon(
-                  auth.isFavorite(s.id) ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                  auth.isFavorite(s.id)
+                      ? Icons.favorite_rounded
+                      : Icons.favorite_border_rounded,
                   color: auth.isFavorite(s.id) ? AppColors.danger : null,
                 ),
               ),
@@ -81,7 +94,9 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                     end: Alignment.bottomLeft,
                   ),
                 ),
-                child: Center(child: Text(s.emoji, style: const TextStyle(fontSize: 72))),
+                child: Center(
+                  child: Text(s.emoji, style: const TextStyle(fontSize: 72)),
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.all(16),
@@ -91,9 +106,13 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                     Row(
                       children: [
                         Expanded(
-                          child: Text(s.title,
-                              style: const TextStyle(
-                                  fontSize: 19, fontWeight: FontWeight.w900)),
+                          child: Text(
+                            s.title,
+                            style: const TextStyle(
+                              fontSize: 19,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
                         ),
                         PriceLabel(s.basePrice, fromPrefix: true),
                       ],
@@ -103,13 +122,21 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                       children: [
                         RatingStars(s.rating, showValue: true),
                         const SizedBox(width: 6),
-                        Text('(${toFaDigits(s.ratingCount)} نظر)',
-                            style: const TextStyle(
-                                color: AppColors.subtext, fontSize: 12)),
+                        Text(
+                          '(${toFaDigits(s.ratingCount)} نظر)',
+                          style: const TextStyle(
+                            color: AppColors.subtext,
+                            fontSize: 12,
+                          ),
+                        ),
                         const Spacer(),
-                        Text('${toFaDigits(s.jobsDone)} سرویس انجام‌شده',
-                            style: const TextStyle(
-                                color: AppColors.subtext, fontSize: 12)),
+                        Text(
+                          '${toFaDigits(s.jobsDone)} سرویس انجام‌شده',
+                          style: const TextStyle(
+                            color: AppColors.subtext,
+                            fontSize: 12,
+                          ),
+                        ),
                       ],
                     ),
                     if (s.tags.isNotEmpty) ...[
@@ -119,7 +146,13 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                         children: [
                           for (final t in s.tags)
                             Chip(
-                              label: Text(t, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                              label: Text(
+                                t,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
                               padding: EdgeInsets.zero,
                               visualDensity: VisualDensity.compact,
                             ),
@@ -127,18 +160,30 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                       ),
                     ],
                     const SizedBox(height: 14),
-                    Text(s.description,
-                        style: const TextStyle(
-                            color: AppColors.subtext, fontSize: 13.5, height: 1.9)),
+                    Text(
+                      s.description,
+                      style: const TextStyle(
+                        color: AppColors.subtext,
+                        fontSize: 13.5,
+                        height: 1.9,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     const Row(
                       children: [
-                        Icon(Icons.verified_user_outlined, size: 16, color: AppColors.success),
+                        Icon(
+                          Icons.verified_user_outlined,
+                          size: 16,
+                          color: AppColors.success,
+                        ),
                         SizedBox(width: 6),
                         Expanded(
                           child: Text(
                             'ضمانت بازگشت وجه در صورت نارضایتی • متخصص تاییدشده و بیمه',
-                            style: TextStyle(fontSize: 11.5, color: AppColors.success),
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              color: AppColors.success,
+                            ),
                           ),
                         ),
                       ],
@@ -167,10 +212,15 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                           for (final a in s.addOns)
                             FilterChip(
                               selected: _addOns.contains(a.id),
-                              onSelected: (v) => setState(() =>
-                                  v ? _addOns.add(a.id) : _addOns.remove(a.id)),
-                              label: Text('${a.title} (+${faPrice(a.price)})',
-                                  style: const TextStyle(fontSize: 12)),
+                              onSelected: (v) => setState(
+                                () => v
+                                    ? _addOns.add(a.id)
+                                    : _addOns.remove(a.id),
+                              ),
+                              label: Text(
+                                '${a.title} (+${faPrice(a.price)})',
+                                style: const TextStyle(fontSize: 12),
+                              ),
                             ),
                         ],
                       ),
@@ -191,31 +241,44 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                                 child: Padding(
                                   padding: const EdgeInsets.all(12),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
                                           const CircleAvatar(
-                                              radius: 14,
-                                              child: Icon(Icons.person, size: 16)),
+                                            radius: 14,
+                                            child: Icon(Icons.person, size: 16),
+                                          ),
                                           const SizedBox(width: 8),
                                           Expanded(
-                                              child: Text(r.author,
-                                                  style: const TextStyle(
-                                                      fontWeight: FontWeight.w700,
-                                                      fontSize: 12.5))),
+                                            child: Text(
+                                              r.author,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 12.5,
+                                              ),
+                                            ),
+                                          ),
                                           RatingStars(r.rating, size: 12),
                                         ],
                                       ),
                                       const SizedBox(height: 8),
-                                      Text(r.text,
-                                          style: const TextStyle(
-                                              fontSize: 12.5, height: 1.7)),
+                                      Text(
+                                        r.text,
+                                        style: const TextStyle(
+                                          fontSize: 12.5,
+                                          height: 1.7,
+                                        ),
+                                      ),
                                       const SizedBox(height: 4),
-                                      Text(r.dateLabel,
-                                          style: const TextStyle(
-                                              fontSize: 10.5,
-                                              color: AppColors.subtext)),
+                                      Text(
+                                        r.dateLabel,
+                                        style: const TextStyle(
+                                          fontSize: 10.5,
+                                          color: AppColors.subtext,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -241,9 +304,13 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('مبلغ قابل پرداخت',
-                          style: TextStyle(
-                              fontSize: 11, color: AppColors.subtext)),
+                      const Text(
+                        'مبلغ قابل پرداخت',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppColors.subtext,
+                        ),
+                      ),
                       PriceLabel(total, big: true),
                     ],
                   ),
@@ -313,13 +380,21 @@ class _OptionCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(option.title,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w800, fontSize: 13.5)),
+                  Text(
+                    option.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 13.5,
+                    ),
+                  ),
                   if (option.duration.isNotEmpty)
-                    Text('⏱ ${option.duration}',
-                        style: const TextStyle(
-                            fontSize: 11, color: AppColors.subtext)),
+                    Text(
+                      '⏱ ${option.duration}',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.subtext,
+                      ),
+                    ),
                 ],
               ),
             ),

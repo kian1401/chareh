@@ -3,6 +3,7 @@
 library;
 
 import 'package:flutter/material.dart';
+
 import '../core/utils/persian_utils.dart';
 
 // ───────────────────────────── نقش‌ها ─────────────────────────────
@@ -10,61 +11,69 @@ enum UserRole { customer, provider, admin }
 
 extension UserRoleX on UserRole {
   String get fa => switch (this) {
-        UserRole.customer => 'مشتری',
-        UserRole.provider => 'سرویس‌دهنده',
-        UserRole.admin => 'مدیر سیستم',
-      };
+    UserRole.customer => 'مشتری',
+    UserRole.provider => 'سرویس‌دهنده',
+    UserRole.admin => 'مدیر سیستم',
+  };
 
   static UserRole fromName(String? v) => UserRole.values.firstWhere(
-        (e) => e.name == v,
-        orElse: () => UserRole.customer,
-      );
+    (e) => e.name == v,
+    orElse: () => UserRole.customer,
+  );
 }
 
 // ─────────────────────── وضعیت سفارش ───────────────────────
-enum BookingStatus { pending, accepted, onTheWay, inProgress, completed, rejected, cancelled }
+enum BookingStatus {
+  pending,
+  accepted,
+  onTheWay,
+  inProgress,
+  completed,
+  rejected,
+  cancelled,
+}
 
 extension BookingStatusX on BookingStatus {
   String get fa => switch (this) {
-        BookingStatus.pending => 'در انتظار پذیرش',
-        BookingStatus.accepted => 'پذیرفته شد',
-        BookingStatus.onTheWay => 'در راه است',
-        BookingStatus.inProgress => 'در حال انجام',
-        BookingStatus.completed => 'تکمیل شد',
-        BookingStatus.rejected => 'رد شده',
-        BookingStatus.cancelled => 'لغو شده',
-      };
+    BookingStatus.pending => 'در انتظار پذیرش',
+    BookingStatus.accepted => 'پذیرفته شد',
+    BookingStatus.onTheWay => 'در راه است',
+    BookingStatus.inProgress => 'در حال انجام',
+    BookingStatus.completed => 'تکمیل شد',
+    BookingStatus.rejected => 'رد شده',
+    BookingStatus.cancelled => 'لغو شده',
+  };
 
   Color get color => switch (this) {
-        BookingStatus.pending => const Color(0xFFD97706),
-        BookingStatus.accepted => const Color(0xFF2D7DD2),
-        BookingStatus.onTheWay => const Color(0xFF7C3AED),
-        BookingStatus.inProgress => const Color(0xFF0891B2),
-        BookingStatus.completed => const Color(0xFF0E9F6E),
-        BookingStatus.rejected || BookingStatus.cancelled => const Color(0xFFE02424),
-      };
+    BookingStatus.pending => const Color(0xFFD97706),
+    BookingStatus.accepted => const Color(0xFF2D7DD2),
+    BookingStatus.onTheWay => const Color(0xFF7C3AED),
+    BookingStatus.inProgress => const Color(0xFF0891B2),
+    BookingStatus.completed => const Color(0xFF0E9F6E),
+    BookingStatus.rejected ||
+    BookingStatus.cancelled => const Color(0xFFE02424),
+  };
 
   bool get isActive => switch (this) {
-        BookingStatus.pending ||
-        BookingStatus.accepted ||
-        BookingStatus.onTheWay ||
-        BookingStatus.inProgress =>
-          true,
-        _ => false,
-      };
+    BookingStatus.pending ||
+    BookingStatus.accepted ||
+    BookingStatus.onTheWay ||
+    BookingStatus.inProgress => true,
+    _ => false,
+  };
 
   /// گام بعدی برای سرویس‌دهنده (null یعنی پایان مسیر)
   BookingStatus? get next => switch (this) {
-        BookingStatus.accepted => BookingStatus.onTheWay,
-        BookingStatus.onTheWay => BookingStatus.inProgress,
-        BookingStatus.inProgress => BookingStatus.completed,
-        _ => null,
-      };
+    BookingStatus.accepted => BookingStatus.onTheWay,
+    BookingStatus.onTheWay => BookingStatus.inProgress,
+    BookingStatus.inProgress => BookingStatus.completed,
+    _ => null,
+  };
 
   static BookingStatus fromName(String? v) => BookingStatus.values.firstWhere(
-        (e) => e.name == v,
-        orElse: () => BookingStatus.pending,
-      );
+    (e) => e.name == v,
+    orElse: () => BookingStatus.pending,
+  );
 }
 
 // ───────────────────────────── کاربر ─────────────────────────────
@@ -96,29 +105,29 @@ class AppUser {
   bool get isLoggedIn => id.isNotEmpty;
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'phone': phone,
-        'role': role.name,
-        'avatarEmoji': avatarEmoji,
-        'walletBalance': walletBalance,
-        'points': points,
-        'referralCode': referralCode,
-        'referredBy': referredBy,
-        'favorites': favorites,
-      };
+    'name': name,
+    'phone': phone,
+    'role': role.name,
+    'avatarEmoji': avatarEmoji,
+    'walletBalance': walletBalance,
+    'points': points,
+    'referralCode': referralCode,
+    'referredBy': referredBy,
+    'favorites': favorites,
+  };
 
   factory AppUser.fromJson(String id, Map<String, dynamic> j) => AppUser(
-        id: id,
-        name: j['name'] ?? '',
-        phone: j['phone'] ?? '',
-        role: UserRoleX.fromName(j['role']),
-        avatarEmoji: j['avatarEmoji'] ?? '🙂',
-        walletBalance: (j['walletBalance'] ?? 0) as int,
-        points: (j['points'] ?? 0) as int,
-        referralCode: j['referralCode'] ?? '',
-        referredBy: j['referredBy'],
-        favorites: List<String>.from(j['favorites'] ?? []),
-      );
+    id: id,
+    name: j['name'] ?? '',
+    phone: j['phone'] ?? '',
+    role: UserRoleX.fromName(j['role']),
+    avatarEmoji: j['avatarEmoji'] ?? '🙂',
+    walletBalance: (j['walletBalance'] ?? 0) as int,
+    points: (j['points'] ?? 0) as int,
+    referralCode: j['referralCode'] ?? '',
+    referredBy: j['referredBy'],
+    favorites: List<String>.from(j['favorites'] ?? []),
+  );
 }
 
 // ─────────────────────────── دسته‌بندی ───────────────────────────
@@ -133,7 +142,8 @@ const catImageMap = {
 };
 
 extension CategoryImageX on Category {
-  String get effectiveImage => imageUrl.isNotEmpty ? imageUrl : (catImageMap[id] ?? '');
+  String get effectiveImage =>
+      imageUrl.isNotEmpty ? imageUrl : (catImageMap[id] ?? '');
 }
 
 class Category {
@@ -156,19 +166,23 @@ class Category {
   });
 
   Map<String, dynamic> toJson() => {
-        'title': title, 'emoji': emoji, 'imageUrl': imageUrl,
-        'order': order, 'featured': featured, 'active': active,
-      };
+    'title': title,
+    'emoji': emoji,
+    'imageUrl': imageUrl,
+    'order': order,
+    'featured': featured,
+    'active': active,
+  };
 
   factory Category.fromJson(String id, Map<String, dynamic> j) => Category(
-        id: id,
-        title: j['title'] ?? '',
-        emoji: j['emoji'] ?? '🔧',
-        imageUrl: j['imageUrl'] ?? '',
-        order: (j['order'] ?? 99) as int,
-        featured: j['featured'] ?? false,
-        active: j['active'] ?? true,
-      );
+    id: id,
+    title: j['title'] ?? '',
+    emoji: j['emoji'] ?? '🔧',
+    imageUrl: j['imageUrl'] ?? '',
+    order: (j['order'] ?? 99) as int,
+    featured: j['featured'] ?? false,
+    active: j['active'] ?? true,
+  );
 }
 
 // ─────────────────────── سرویس و گزینه‌ها ───────────────────────
@@ -187,10 +201,15 @@ class ServiceOption {
     this.duration = '',
   });
 
-  Map<String, dynamic> toJson() =>
-      {'title': title, 'subtitle': subtitle, 'price': price, 'duration': duration};
+  Map<String, dynamic> toJson() => {
+    'title': title,
+    'subtitle': subtitle,
+    'price': price,
+    'duration': duration,
+  };
 
-  factory ServiceOption.fromJson(String id, Map<String, dynamic> j) => ServiceOption(
+  factory ServiceOption.fromJson(String id, Map<String, dynamic> j) =>
+      ServiceOption(
         id: id,
         title: j['title'] ?? '',
         subtitle: j['subtitle'] ?? '',
@@ -246,22 +265,23 @@ class ServiceItem {
   });
 
   Map<String, dynamic> toJson() => {
-        'categoryId': categoryId,
-        'title': title,
-        'description': description,
-        'emoji': emoji,
-        'imageUrl': imageUrl,
-        'basePrice': basePrice,
-        'rating': rating,
-        'ratingCount': ratingCount,
-        'jobsDone': jobsDone,
-        'active': active,
-        'options': options.map((e) => e.toJson()).toList(),
-        'addOns': addOns.map((e) => e.toJson()).toList(),
-        'tags': tags,
-      };
+    'categoryId': categoryId,
+    'title': title,
+    'description': description,
+    'emoji': emoji,
+    'imageUrl': imageUrl,
+    'basePrice': basePrice,
+    'rating': rating,
+    'ratingCount': ratingCount,
+    'jobsDone': jobsDone,
+    'active': active,
+    'options': options.map((e) => e.toJson()).toList(),
+    'addOns': addOns.map((e) => e.toJson()).toList(),
+    'tags': tags,
+  };
 
-  factory ServiceItem.fromJson(String id, Map<String, dynamic> j) => ServiceItem(
+  factory ServiceItem.fromJson(String id, Map<String, dynamic> j) =>
+      ServiceItem(
         id: id,
         categoryId: j['categoryId'] ?? '',
         title: j['title'] ?? '',
@@ -275,11 +295,17 @@ class ServiceItem {
         active: j['active'] ?? true,
         options: [
           for (var i = 0; i < (j['options'] as List? ?? []).length; i++)
-            ServiceOption.fromJson('opt$i', (j['options'] as List)[i] as Map<String, dynamic>)
+            ServiceOption.fromJson(
+              'opt$i',
+              (j['options'] as List)[i] as Map<String, dynamic>,
+            ),
         ],
         addOns: [
           for (var i = 0; i < (j['addOns'] as List? ?? []).length; i++)
-            AddOn.fromJson('add$i', (j['addOns'] as List)[i] as Map<String, dynamic>)
+            AddOn.fromJson(
+              'add$i',
+              (j['addOns'] as List)[i] as Map<String, dynamic>,
+            ),
         ],
         tags: List<String>.from(j['tags'] ?? []),
       );
@@ -300,16 +326,20 @@ class Review {
     required this.dateLabel,
   });
 
-  Map<String, dynamic> toJson() =>
-      {'author': author, 'rating': rating, 'text': text, 'dateLabel': dateLabel};
+  Map<String, dynamic> toJson() => {
+    'author': author,
+    'rating': rating,
+    'text': text,
+    'dateLabel': dateLabel,
+  };
 
   factory Review.fromJson(String id, Map<String, dynamic> j) => Review(
-        id: id,
-        author: j['author'] ?? '',
-        rating: (j['rating'] ?? 5).toDouble(),
-        text: j['text'] ?? '',
-        dateLabel: j['dateLabel'] ?? '',
-      );
+    id: id,
+    author: j['author'] ?? '',
+    rating: (j['rating'] ?? 5).toDouble(),
+    text: j['text'] ?? '',
+    dateLabel: j['dateLabel'] ?? '',
+  );
 }
 
 // ───────────────────────── سرویس‌دهنده ─────────────────────────
@@ -347,22 +377,23 @@ class ProviderProfile {
   });
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'emoji': emoji,
-        'skills': skills,
-        'rating': rating,
-        'ratingCount': ratingCount,
-        'jobsDone': jobsDone,
-        'verified': verified,
-        'online': online,
-        'active': active,
-        'level': level,
-        'cityId': cityId,
-        'phone': phone,
-        'userId': userId,
-      };
+    'name': name,
+    'emoji': emoji,
+    'skills': skills,
+    'rating': rating,
+    'ratingCount': ratingCount,
+    'jobsDone': jobsDone,
+    'verified': verified,
+    'online': online,
+    'active': active,
+    'level': level,
+    'cityId': cityId,
+    'phone': phone,
+    'userId': userId,
+  };
 
-  factory ProviderProfile.fromJson(String id, Map<String, dynamic> j) => ProviderProfile(
+  factory ProviderProfile.fromJson(String id, Map<String, dynamic> j) =>
+      ProviderProfile(
         id: id,
         name: j['name'] ?? '',
         emoji: j['emoji'] ?? '🧑‍🔧',
@@ -416,11 +447,19 @@ class AddressItem {
   }
 
   Map<String, dynamic> toJson() => {
-        'title': title, 'text': text, 'lat': lat, 'lng': lng,
-        'cityId': cityId, 'plaque': plaque, 'floor': floor, 'unit': unit, 'isDefault': isDefault,
-      };
+    'title': title,
+    'text': text,
+    'lat': lat,
+    'lng': lng,
+    'cityId': cityId,
+    'plaque': plaque,
+    'floor': floor,
+    'unit': unit,
+    'isDefault': isDefault,
+  };
 
-  factory AddressItem.fromJson(String id, Map<String, dynamic> j) => AddressItem(
+  factory AddressItem.fromJson(String id, Map<String, dynamic> j) =>
+      AddressItem(
         id: id,
         title: j['title'] ?? '',
         text: j['text'] ?? '',
@@ -450,16 +489,20 @@ class City {
     this.order = 99,
   });
 
-  Map<String, dynamic> toJson() =>
-      {'title': title, 'province': province, 'active': active, 'order': order};
+  Map<String, dynamic> toJson() => {
+    'title': title,
+    'province': province,
+    'active': active,
+    'order': order,
+  };
 
   factory City.fromJson(String id, Map<String, dynamic> j) => City(
-        id: id,
-        title: j['title'] ?? '',
-        province: j['province'] ?? '',
-        active: j['active'] ?? false,
-        order: (j['order'] ?? 99) as int,
-      );
+    id: id,
+    title: j['title'] ?? '',
+    province: j['province'] ?? '',
+    active: j['active'] ?? false,
+    order: (j['order'] ?? 99) as int,
+  );
 }
 
 // ─────────────────────────── سفارش ───────────────────────────
@@ -472,14 +515,17 @@ class StatusEvent {
 
   String get label => status.fa;
 
-  Map<String, dynamic> toJson() =>
-      {'status': status.name, 'at': at.toIso8601String(), if (note != null) 'note': note};
+  Map<String, dynamic> toJson() => {
+    'status': status.name,
+    'at': at.toIso8601String(),
+    if (note != null) 'note': note,
+  };
 
   factory StatusEvent.fromJson(Map<String, dynamic> j) => StatusEvent(
-        BookingStatusX.fromName(j['status']),
-        DateTime.tryParse(j['at'] ?? '') ?? DateTime.now(),
-        note: j['note'],
-      );
+    BookingStatusX.fromName(j['status']),
+    DateTime.tryParse(j['at'] ?? '') ?? DateTime.now(),
+    note: j['note'],
+  );
 }
 
 class Booking {
@@ -545,8 +591,9 @@ class Booking {
     this.review,
     this.paymentMethod = 'آنلاین',
     this.contactRevealed = false,
-  })  : createdAt = createdAt ?? DateTime.now(),
-        timeline = timeline ?? [StatusEvent(BookingStatus.pending, DateTime.now())];
+  }) : createdAt = createdAt ?? DateTime.now(),
+       timeline =
+           timeline ?? [StatusEvent(BookingStatus.pending, DateTime.now())];
 
   /// 🔒 شماره مشتری: تا پذیرش متخصص ماسک می‌ماند
   /// [viewerIsProvider] = آیا بیننده متخصص است (فقط او منتظر ماسک است)
@@ -558,72 +605,72 @@ class Booking {
   }
 
   Map<String, dynamic> toJson() => {
-        'serviceId': serviceId,
-        'serviceTitle': serviceTitle,
-        'serviceEmoji': serviceEmoji,
-        'optionTitle': optionTitle,
-        'addOnTitles': addOnTitles,
-        'customerId': customerId,
-        'customerName': customerName,
-        'customerPhone': customerPhone,
-        'providerId': providerId,
-        'providerName': providerName,
-        'providerEmoji': providerEmoji,
-        'cityId': cityId,
-        'dayLabel': dayLabel,
-        'timeSlot': timeSlot,
-        'candidateDays': candidateDays,
-        'candidateSlots': candidateSlots,
-        'confirmedDay': confirmedDay,
-        'confirmedSlot': confirmedSlot,
-        'addressText': addressText,
-        'addressLat': addressLat,
-        'addressLng': addressLng,
-        'status': status.name,
-        'totalPrice': totalPrice,
-        'createdAt': createdAt.toIso8601String(),
-        'timeline': timeline.map((e) => e.toJson()).toList(),
-        'rating': rating,
-        'review': review,
-        'paymentMethod': paymentMethod,
-        'contactRevealed': contactRevealed,
-      };
+    'serviceId': serviceId,
+    'serviceTitle': serviceTitle,
+    'serviceEmoji': serviceEmoji,
+    'optionTitle': optionTitle,
+    'addOnTitles': addOnTitles,
+    'customerId': customerId,
+    'customerName': customerName,
+    'customerPhone': customerPhone,
+    'providerId': providerId,
+    'providerName': providerName,
+    'providerEmoji': providerEmoji,
+    'cityId': cityId,
+    'dayLabel': dayLabel,
+    'timeSlot': timeSlot,
+    'candidateDays': candidateDays,
+    'candidateSlots': candidateSlots,
+    'confirmedDay': confirmedDay,
+    'confirmedSlot': confirmedSlot,
+    'addressText': addressText,
+    'addressLat': addressLat,
+    'addressLng': addressLng,
+    'status': status.name,
+    'totalPrice': totalPrice,
+    'createdAt': createdAt.toIso8601String(),
+    'timeline': timeline.map((e) => e.toJson()).toList(),
+    'rating': rating,
+    'review': review,
+    'paymentMethod': paymentMethod,
+    'contactRevealed': contactRevealed,
+  };
 
   factory Booking.fromJson(String id, Map<String, dynamic> j) => Booking(
-        id: id,
-        serviceId: j['serviceId'] ?? '',
-        serviceTitle: j['serviceTitle'] ?? '',
-        serviceEmoji: j['serviceEmoji'] ?? '🔧',
-        optionTitle: j['optionTitle'] ?? '',
-        addOnTitles: List<String>.from(j['addOnTitles'] ?? []),
-        customerId: j['customerId'] ?? '',
-        customerName: j['customerName'] ?? '',
-        customerPhone: j['customerPhone'] ?? '',
-        providerId: j['providerId'],
-        providerName: j['providerName'],
-        providerEmoji: j['providerEmoji'],
-        cityId: j['cityId'] ?? 'urmia',
-        dayLabel: j['dayLabel'] ?? '',
-        timeSlot: j['timeSlot'] ?? '',
-        candidateDays: List<String>.from(j['candidateDays'] ?? []),
-        candidateSlots: List<String>.from(j['candidateSlots'] ?? []),
-        confirmedDay: j['confirmedDay'],
-        confirmedSlot: j['confirmedSlot'],
-        addressText: j['addressText'] ?? '',
-        addressLat: (j['addressLat'] ?? 37.55).toDouble(),
-        addressLng: (j['addressLng'] ?? 45.07).toDouble(),
-        status: BookingStatusX.fromName(j['status']),
-        totalPrice: (j['totalPrice'] ?? 0) as int,
-        createdAt: DateTime.tryParse(j['createdAt'] ?? '') ?? DateTime.now(),
-        timeline: [
-          for (final e in (j['timeline'] as List? ?? []))
-            StatusEvent.fromJson(Map<String, dynamic>.from(e as Map))
-        ],
-        rating: j['rating'],
-        review: j['review'],
-        paymentMethod: j['paymentMethod'] ?? 'آنلاین',
-        contactRevealed: j['contactRevealed'] ?? false,
-      );
+    id: id,
+    serviceId: j['serviceId'] ?? '',
+    serviceTitle: j['serviceTitle'] ?? '',
+    serviceEmoji: j['serviceEmoji'] ?? '🔧',
+    optionTitle: j['optionTitle'] ?? '',
+    addOnTitles: List<String>.from(j['addOnTitles'] ?? []),
+    customerId: j['customerId'] ?? '',
+    customerName: j['customerName'] ?? '',
+    customerPhone: j['customerPhone'] ?? '',
+    providerId: j['providerId'],
+    providerName: j['providerName'],
+    providerEmoji: j['providerEmoji'],
+    cityId: j['cityId'] ?? 'urmia',
+    dayLabel: j['dayLabel'] ?? '',
+    timeSlot: j['timeSlot'] ?? '',
+    candidateDays: List<String>.from(j['candidateDays'] ?? []),
+    candidateSlots: List<String>.from(j['candidateSlots'] ?? []),
+    confirmedDay: j['confirmedDay'],
+    confirmedSlot: j['confirmedSlot'],
+    addressText: j['addressText'] ?? '',
+    addressLat: (j['addressLat'] ?? 37.55).toDouble(),
+    addressLng: (j['addressLng'] ?? 45.07).toDouble(),
+    status: BookingStatusX.fromName(j['status']),
+    totalPrice: (j['totalPrice'] ?? 0) as int,
+    createdAt: DateTime.tryParse(j['createdAt'] ?? '') ?? DateTime.now(),
+    timeline: [
+      for (final e in (j['timeline'] as List? ?? []))
+        StatusEvent.fromJson(Map<String, dynamic>.from(e as Map)),
+    ],
+    rating: j['rating'],
+    review: j['review'],
+    paymentMethod: j['paymentMethod'] ?? 'آنلاین',
+    contactRevealed: j['contactRevealed'] ?? false,
+  );
 }
 
 // ─────────────────── پیش‌نویس رزرو (حالت مشتری) ───────────────────
@@ -665,7 +712,11 @@ class BookingDraft {
   }
 
   bool get ready =>
-      service != null && option != null && days.isNotEmpty && slots.isNotEmpty && address != null;
+      service != null &&
+      option != null &&
+      days.isNotEmpty &&
+      slots.isNotEmpty &&
+      address != null;
 
   String get dayLabel => day == null ? '' : faDayLabel(day!);
 }
@@ -686,10 +737,15 @@ class ChatMessage {
     required this.at,
   });
 
-  Map<String, dynamic> toJson() =>
-      {'threadId': threadId, 'isMine': isMine, 'text': text, 'at': at.toIso8601String()};
+  Map<String, dynamic> toJson() => {
+    'threadId': threadId,
+    'isMine': isMine,
+    'text': text,
+    'at': at.toIso8601String(),
+  };
 
-  factory ChatMessage.fromJson(String id, Map<String, dynamic> j) => ChatMessage(
+  factory ChatMessage.fromJson(String id, Map<String, dynamic> j) =>
+      ChatMessage(
         id: id,
         threadId: j['threadId'] ?? '',
         isMine: j['isMine'] ?? false,
@@ -714,10 +770,15 @@ class EarningEntry {
     this.settled = false,
   });
 
-  Map<String, dynamic> toJson() =>
-      {'title': title, 'dateLabel': dateLabel, 'amount': amount, 'settled': settled};
+  Map<String, dynamic> toJson() => {
+    'title': title,
+    'dateLabel': dateLabel,
+    'amount': amount,
+    'settled': settled,
+  };
 
-  factory EarningEntry.fromJson(String id, Map<String, dynamic> j) => EarningEntry(
+  factory EarningEntry.fromJson(String id, Map<String, dynamic> j) =>
+      EarningEntry(
         id: id,
         title: j['title'] ?? '',
         dateLabel: j['dateLabel'] ?? '',
@@ -745,14 +806,15 @@ class AppNotification {
   });
 
   Map<String, dynamic> toJson() => {
-        'title': title,
-        'body': body,
-        'emoji': emoji,
-        'unread': unread,
-        'at': at.toIso8601String(),
-      };
+    'title': title,
+    'body': body,
+    'emoji': emoji,
+    'unread': unread,
+    'at': at.toIso8601String(),
+  };
 
-  factory AppNotification.fromJson(String id, Map<String, dynamic> j) => AppNotification(
+  factory AppNotification.fromJson(String id, Map<String, dynamic> j) =>
+      AppNotification(
         id: id,
         title: j['title'] ?? '',
         body: j['body'] ?? '',
@@ -781,18 +843,21 @@ class WalletTxn {
   });
 
   Map<String, dynamic> toJson() => {
-        'userId': userId, 'title': title, 'amount': amount,
-        'isBonus': isBonus, 'at': at.toIso8601String(),
-      };
+    'userId': userId,
+    'title': title,
+    'amount': amount,
+    'isBonus': isBonus,
+    'at': at.toIso8601String(),
+  };
 
   factory WalletTxn.fromJson(String id, Map<String, dynamic> j) => WalletTxn(
-        id: id,
-        userId: j['userId'] ?? '',
-        title: j['title'] ?? '',
-        amount: (j['amount'] ?? 0) as int,
-        isBonus: j['isBonus'] ?? false,
-        at: DateTime.tryParse(j['at'] ?? '') ?? DateTime.now(),
-      );
+    id: id,
+    userId: j['userId'] ?? '',
+    title: j['title'] ?? '',
+    amount: (j['amount'] ?? 0) as int,
+    isBonus: j['isBonus'] ?? false,
+    at: DateTime.tryParse(j['at'] ?? '') ?? DateTime.now(),
+  );
 }
 
 /// 🎁 پلهٔ بونس شارژ کیف پول (ادیت‌پذیر از پنل ادمین)
@@ -801,15 +866,23 @@ class WalletBonusTier {
   int minAmount; // حداقل شارژ (تومان)
   int bonusPercent; // درصد هدیه
 
-  WalletBonusTier({this.id = '', required this.minAmount, required this.bonusPercent});
+  WalletBonusTier({
+    this.id = '',
+    required this.minAmount,
+    required this.bonusPercent,
+  });
 
-  Map<String, dynamic> toJson() => {'id': id, 'minAmount': minAmount, 'bonusPercent': bonusPercent};
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'minAmount': minAmount,
+    'bonusPercent': bonusPercent,
+  };
 
   factory WalletBonusTier.fromJson(Map<String, dynamic> j) => WalletBonusTier(
-        id: j['id'] ?? '',
-        minAmount: (j['minAmount'] ?? 0) as int,
-        bonusPercent: (j['bonusPercent'] ?? 0) as int,
-      );
+    id: j['id'] ?? '',
+    minAmount: (j['minAmount'] ?? 0) as int,
+    bonusPercent: (j['bonusPercent'] ?? 0) as int,
+  );
 }
 
 /// ⚙️ تنظیمات CMS که ادمین زنده تغییر می‌دهد
@@ -844,47 +917,48 @@ class AppSettings {
     this.instagramUrl = '',
     this.whatsappUrl = '',
     this.socialOrderComingSoon = true,
-  }) : bonusTiers = bonusTiers ??
-            [
-              WalletBonusTier(minAmount: 100000, bonusPercent: 5),
-              WalletBonusTier(minAmount: 300000, bonusPercent: 10),
-              WalletBonusTier(minAmount: 500000, bonusPercent: 15),
-            ];
+  }) : bonusTiers =
+           bonusTiers ??
+           [
+             WalletBonusTier(minAmount: 100000, bonusPercent: 5),
+             WalletBonusTier(minAmount: 300000, bonusPercent: 10),
+             WalletBonusTier(minAmount: 500000, bonusPercent: 15),
+           ];
 
   Map<String, dynamic> toJson() => {
-        'appTitle': appTitle,
-        'logoEmoji': logoEmoji,
-        'primaryHex': primaryHex,
-        'fontFamily': fontFamily,
-        'heroImageUrl': heroImageUrl,
-        'geminiApiKey': geminiApiKey,
-        'defaultCityId': defaultCityId,
-        'bonusTiers': bonusTiers.map((e) => e.toJson()).toList(),
-        'referralReward': referralReward,
-        'commissionRate': commissionRate,
-        'telegramUrl': telegramUrl,
-        'instagramUrl': instagramUrl,
-        'whatsappUrl': whatsappUrl,
-        'socialOrderComingSoon': socialOrderComingSoon,
-      };
+    'appTitle': appTitle,
+    'logoEmoji': logoEmoji,
+    'primaryHex': primaryHex,
+    'fontFamily': fontFamily,
+    'heroImageUrl': heroImageUrl,
+    'geminiApiKey': geminiApiKey,
+    'defaultCityId': defaultCityId,
+    'bonusTiers': bonusTiers.map((e) => e.toJson()).toList(),
+    'referralReward': referralReward,
+    'commissionRate': commissionRate,
+    'telegramUrl': telegramUrl,
+    'instagramUrl': instagramUrl,
+    'whatsappUrl': whatsappUrl,
+    'socialOrderComingSoon': socialOrderComingSoon,
+  };
 
   factory AppSettings.fromJson(Map<String, dynamic> j) => AppSettings(
-        appTitle: j['appTitle'] ?? 'چاره',
-        logoEmoji: j['logoEmoji'] ?? '🧡',
-        primaryHex: j['primaryHex'] ?? '#E85C24',
-        fontFamily: j['fontFamily'] ?? 'Vazirmatn',
-        heroImageUrl: j['heroImageUrl'] ?? '',
-        geminiApiKey: j['geminiApiKey'] ?? '',
-        defaultCityId: j['defaultCityId'] ?? 'urmia',
-        bonusTiers: [
-          for (final e in (j['bonusTiers'] as List? ?? []))
-            WalletBonusTier.fromJson(Map<String, dynamic>.from(e as Map)),
-        ],
-        referralReward: (j['referralReward'] ?? 50000) as int,
-        commissionRate: (j['commissionRate'] ?? 0.12).toDouble(),
-        telegramUrl: j['telegramUrl'] ?? '',
-        instagramUrl: j['instagramUrl'] ?? '',
-        whatsappUrl: j['whatsappUrl'] ?? '',
-        socialOrderComingSoon: j['socialOrderComingSoon'] ?? true,
-      );
+    appTitle: j['appTitle'] ?? 'چاره',
+    logoEmoji: j['logoEmoji'] ?? '🧡',
+    primaryHex: j['primaryHex'] ?? '#E85C24',
+    fontFamily: j['fontFamily'] ?? 'Vazirmatn',
+    heroImageUrl: j['heroImageUrl'] ?? '',
+    geminiApiKey: j['geminiApiKey'] ?? '',
+    defaultCityId: j['defaultCityId'] ?? 'urmia',
+    bonusTiers: [
+      for (final e in (j['bonusTiers'] as List? ?? []))
+        WalletBonusTier.fromJson(Map<String, dynamic>.from(e as Map)),
+    ],
+    referralReward: (j['referralReward'] ?? 50000) as int,
+    commissionRate: (j['commissionRate'] ?? 0.12).toDouble(),
+    telegramUrl: j['telegramUrl'] ?? '',
+    instagramUrl: j['instagramUrl'] ?? '',
+    whatsappUrl: j['whatsappUrl'] ?? '',
+    socialOrderComingSoon: j['socialOrderComingSoon'] ?? true,
+  );
 }

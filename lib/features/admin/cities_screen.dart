@@ -25,7 +25,10 @@ class AdminCitiesScreen extends StatelessWidget {
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: const Color(0xFFECFDF5), borderRadius: BorderRadius.circular(12)),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFECFDF5),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Text(
                     '🟢 $activeCount شهر فعال — شروع آزمایشی در «ارومیه». با فعال کردن هر شهر، کاربرانِ همان شهر سفارش می‌گذارند و متخصصان‌اش نمایان می‌شوند.',
                     style: const TextStyle(fontSize: 12.5, height: 1.8),
@@ -40,24 +43,47 @@ class AdminCitiesScreen extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: PillowCard(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                          child: Row(children: [
-                            Text(c.active ? '🟢' : '⚪', style: const TextStyle(fontSize: 18)),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                Text(c.title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14.5)),
-                                Text(c.province, style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
-                              ]),
-                            ),
-                            Switch(
-                              value: c.active,
-                              onChanged: (v) {
-                                c.active = v;
-                                RepoHub.instance.catalog.upsertCity(c);
-                              },
-                            ),
-                          ]),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 6,
+                          ),
+                          child: Row(
+                            children: [
+                              Text(
+                                c.active ? '🟢' : '⚪',
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      c.title,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 14.5,
+                                      ),
+                                    ),
+                                    Text(
+                                      c.province,
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: Color(0xFF9CA3AF),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Switch(
+                                value: c.active,
+                                onChanged: (v) {
+                                  c.active = v;
+                                  RepoHub.instance.catalog.upsertCity(c);
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                   ],
@@ -85,21 +111,35 @@ class AdminCitiesScreen extends StatelessWidget {
       showDragHandle: true,
       builder: (_) => SafeSheet(
         title: const Text('افزودن شهر'),
-        content: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'نام شهر')),
-          TextField(controller: provCtrl, decoration: const InputDecoration(labelText: 'استان')),
-        ]),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameCtrl,
+              decoration: const InputDecoration(labelText: 'نام شهر'),
+            ),
+            TextField(
+              controller: provCtrl,
+              decoration: const InputDecoration(labelText: 'استان'),
+            ),
+          ],
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('انصراف')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('انصراف'),
+          ),
           FilledButton(
             onPressed: () async {
               final name = nameCtrl.text.trim();
               if (name.isEmpty) return;
-              await RepoHub.instance.catalog.upsertCity(City(
-                id: 'c_${DateTime.now().millisecondsSinceEpoch}',
-                title: name,
-                province: provCtrl.text.trim(),
-              ));
+              await RepoHub.instance.catalog.upsertCity(
+                City(
+                  id: 'c_${DateTime.now().millisecondsSinceEpoch}',
+                  title: name,
+                  province: provCtrl.text.trim(),
+                ),
+              );
               if (context.mounted) Navigator.pop(context);
             },
             child: const Text('افزودن (غیرفعال پیش‌فرض)'),

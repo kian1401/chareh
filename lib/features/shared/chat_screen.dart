@@ -38,8 +38,11 @@ class _ChatScreenState extends State<ChatScreen> {
     if (text.isEmpty) return;
     _ctrl.clear();
     final portal = context.read<AuthState>().portal;
-    await RepoHub.instance.chat
-        .send(widget.threadId, text, fromCustomer: portal == UserRole.customer);
+    await RepoHub.instance.chat.send(
+      widget.threadId,
+      text,
+      fromCustomer: portal == UserRole.customer,
+    );
   }
 
   @override
@@ -65,8 +68,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 final msgs = snap.data ?? [];
                 if (msgs.isEmpty) {
                   return const Center(
-                    child: Text('گفتگو را آغاز کنید 👋',
-                        style: TextStyle(color: AppColors.subtext)),
+                    child: Text(
+                      'گفتگو را آغاز کنید 👋',
+                      style: TextStyle(color: AppColors.subtext),
+                    ),
                   );
                 }
                 return ListView.builder(
@@ -75,15 +80,18 @@ class _ChatScreenState extends State<ChatScreen> {
                   itemBuilder: (_, i) {
                     final m = msgs[i];
                     return Align(
-                      alignment:
-                          m.isMine ? Alignment.centerLeft : Alignment.centerRight,
+                      alignment: m.isMine
+                          ? Alignment.centerLeft
+                          : Alignment.centerRight,
                       child: Container(
                         margin: const EdgeInsets.only(bottom: 10),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 10),
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
                         constraints: BoxConstraints(
-                            maxWidth:
-                                MediaQuery.of(context).size.width * .75),
+                          maxWidth: MediaQuery.of(context).size.width * .75,
+                        ),
                         decoration: BoxDecoration(
                           color: m.isMine ? AppColors.primary : Colors.white,
                           borderRadius: BorderRadius.circular(16),
@@ -94,19 +102,23 @@ class _ChatScreenState extends State<ChatScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text(m.text,
-                                style: TextStyle(
-                                    fontSize: 13,
-                                    height: 1.7,
-                                    color: m.isMine
-                                        ? Colors.white
-                                        : AppColors.text)),
-                            Text(timeAgoFa(m.at),
-                                style: TextStyle(
-                                    fontSize: 9.5,
-                                    color: m.isMine
-                                        ? Colors.white70
-                                        : AppColors.subtext)),
+                            Text(
+                              m.text,
+                              style: TextStyle(
+                                fontSize: 13,
+                                height: 1.7,
+                                color: m.isMine ? Colors.white : AppColors.text,
+                              ),
+                            ),
+                            Text(
+                              timeAgoFa(m.at),
+                              style: TextStyle(
+                                fontSize: 9.5,
+                                color: m.isMine
+                                    ? Colors.white70
+                                    : AppColors.subtext,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -125,8 +137,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     controller: _ctrl,
                     textInputAction: TextInputAction.send,
                     onSubmitted: (_) => _send(),
-                    decoration:
-                        const InputDecoration(hintText: 'پیام بنویسید…'),
+                    decoration: const InputDecoration(
+                      hintText: 'پیام بنویسید…',
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),

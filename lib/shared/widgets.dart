@@ -16,19 +16,24 @@ class SectionHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+        Text(
+          title,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+        ),
         if (actionText != null)
           InkWell(
             onTap: onAction,
             borderRadius: BorderRadius.circular(8),
             child: Padding(
               padding: const EdgeInsets.all(4),
-              child: Text(actionText!,
-                  style: const TextStyle(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 12.5)),
+              child: Text(
+                actionText!,
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 12.5,
+                ),
+              ),
             ),
           ),
       ],
@@ -37,7 +42,13 @@ class SectionHeader extends StatelessWidget {
 }
 
 class EmojiBadge extends StatelessWidget {
-  const EmojiBadge(this.emoji, {super.key, this.seed = '', this.size = 56, this.radius = 14});
+  const EmojiBadge(
+    this.emoji, {
+    super.key,
+    this.seed = '',
+    this.size = 56,
+    this.radius = 14,
+  });
 
   final String emoji;
   final String seed;
@@ -52,7 +63,10 @@ class EmojiBadge extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-            colors: g, begin: Alignment.topRight, end: Alignment.bottomLeft),
+          colors: g,
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+        ),
         borderRadius: BorderRadius.circular(radius),
       ),
       alignment: Alignment.center,
@@ -62,7 +76,12 @@ class EmojiBadge extends StatelessWidget {
 }
 
 class RatingStars extends StatelessWidget {
-  const RatingStars(this.rating, {super.key, this.size = 15, this.showValue = false});
+  const RatingStars(
+    this.rating, {
+    super.key,
+    this.size = 15,
+    this.showValue = false,
+  });
 
   final double rating;
   final double size;
@@ -77,14 +96,18 @@ class RatingStars extends StatelessWidget {
           Icon(
             rating >= i - 0.25
                 ? Icons.star_rounded
-                : (rating >= i - 0.75 ? Icons.star_half_rounded : Icons.star_border_rounded),
+                : (rating >= i - 0.75
+                      ? Icons.star_half_rounded
+                      : Icons.star_border_rounded),
             size: size,
             color: AppColors.accent,
           ),
         if (showValue) ...[
           const SizedBox(width: 4),
-          Text(toFaDigits(rating.toStringAsFixed(1)),
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)),
+          Text(
+            toFaDigits(rating.toStringAsFixed(1)),
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5),
+          ),
         ],
       ],
     );
@@ -106,14 +129,22 @@ class StatusChip extends StatelessWidget {
       child: Text(
         status.fa,
         style: TextStyle(
-            color: status.color, fontWeight: FontWeight.w700, fontSize: 11.5),
+          color: status.color,
+          fontWeight: FontWeight.w700,
+          fontSize: 11.5,
+        ),
       ),
     );
   }
 }
 
 class PriceLabel extends StatelessWidget {
-  const PriceLabel(this.amount, {super.key, this.fromPrefix = false, this.big = false});
+  const PriceLabel(
+    this.amount, {
+    super.key,
+    this.fromPrefix = false,
+    this.big = false,
+  });
   final int amount;
   final bool fromPrefix;
   final bool big;
@@ -132,7 +163,14 @@ class PriceLabel extends StatelessWidget {
 }
 
 class EmptyState extends StatelessWidget {
-  const EmptyState({super.key, required this.emoji, required this.title, this.body, this.actionText, this.onAction});
+  const EmptyState({
+    super.key,
+    required this.emoji,
+    required this.title,
+    this.body,
+    this.actionText,
+    this.onAction,
+  });
 
   final String emoji;
   final String title;
@@ -150,14 +188,21 @@ class EmptyState extends StatelessWidget {
           children: [
             Text(emoji, style: const TextStyle(fontSize: 52)),
             const SizedBox(height: 12),
-            Text(title,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+            ),
             if (body != null) ...[
               const SizedBox(height: 6),
-              Text(body!,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.subtext, fontSize: 13, height: 1.7)),
+              Text(
+                body!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: AppColors.subtext,
+                  fontSize: 13,
+                  height: 1.7,
+                ),
+              ),
             ],
             if (actionText != null) ...[
               const SizedBox(height: 16),
@@ -171,7 +216,13 @@ class EmptyState extends StatelessWidget {
 }
 
 class StatCard extends StatelessWidget {
-  const StatCard({super.key, required this.emoji, required this.title, required this.value, this.color = AppColors.primary});
+  const StatCard({
+    super.key,
+    required this.emoji,
+    required this.title,
+    required this.value,
+    this.color = AppColors.primary,
+  });
 
   final String emoji;
   final String title;
@@ -188,12 +239,19 @@ class StatCard extends StatelessWidget {
           children: [
             Text(emoji, style: const TextStyle(fontSize: 22)),
             const SizedBox(height: 10),
-            Text(value,
-                style: TextStyle(
-                    fontSize: 17, fontWeight: FontWeight.w900, color: color)),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w900,
+                color: color,
+              ),
+            ),
             const SizedBox(height: 2),
-            Text(title,
-                style: const TextStyle(fontSize: 11.5, color: AppColors.subtext)),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 11.5, color: AppColors.subtext),
+            ),
           ],
         ),
       ),
@@ -229,22 +287,31 @@ class ServiceCard extends StatelessWidget {
               child: Stack(
                 children: [
                   Center(
-                      child: Text(service.emoji,
-                          style: const TextStyle(fontSize: 40))),
+                    child: Text(
+                      service.emoji,
+                      style: const TextStyle(fontSize: 40),
+                    ),
+                  ),
                   if (service.tags.isNotEmpty)
                     Positioned(
                       top: 8,
                       right: 8,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 3),
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: .9),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Text(service.tags.first,
-                            style: const TextStyle(
-                                fontSize: 10, fontWeight: FontWeight.w800)),
+                        child: Text(
+                          service.tags.first,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
                       ),
                     ),
                 ],
@@ -255,11 +322,15 @@ class ServiceCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(service.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w800, fontSize: 13.5)),
+                  Text(
+                    service.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 13.5,
+                    ),
+                  ),
                   const SizedBox(height: 5),
                   Row(
                     children: [
@@ -269,7 +340,9 @@ class ServiceCard extends StatelessWidget {
                         child: Text(
                           '${toFaDigits(service.rating.toStringAsFixed(1))} (${toFaDigits(service.ratingCount)} نظر)',
                           style: const TextStyle(
-                              fontSize: 11, color: AppColors.subtext),
+                            fontSize: 11,
+                            color: AppColors.subtext,
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -303,17 +376,25 @@ class ProviderCard extends StatelessWidget {
             children: [
               EmojiBadge(provider.emoji, seed: provider.id, size: 48),
               const SizedBox(height: 8),
-              Text(provider.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w800, fontSize: 13)),
+              Text(
+                provider.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                ),
+              ),
               const SizedBox(height: 4),
               RatingStars(provider.rating, size: 12),
               const SizedBox(height: 4),
-              Text('${toFaDigits(provider.jobsDone)} سرویس انجام‌شده',
-                  style:
-                      const TextStyle(fontSize: 10.5, color: AppColors.subtext)),
+              Text(
+                '${toFaDigits(provider.jobsDone)} سرویس انجام‌شده',
+                style: const TextStyle(
+                  fontSize: 10.5,
+                  color: AppColors.subtext,
+                ),
+              ),
               if (provider.verified) ...[
                 const SizedBox(height: 6),
                 const Row(
@@ -321,11 +402,14 @@ class ProviderCard extends StatelessWidget {
                   children: [
                     Icon(Icons.verified, color: AppColors.info, size: 12),
                     SizedBox(width: 3),
-                    Text('تاییدشده',
-                        style: TextStyle(
-                            fontSize: 10,
-                            color: AppColors.info,
-                            fontWeight: FontWeight.w700)),
+                    Text(
+                      'تاییدشده',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: AppColors.info,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -338,7 +422,12 @@ class ProviderCard extends StatelessWidget {
 }
 
 class BookingCard extends StatelessWidget {
-  const BookingCard({super.key, required this.booking, this.onTap, this.footer});
+  const BookingCard({
+    super.key,
+    required this.booking,
+    this.onTap,
+    this.footer,
+  });
 
   final Booking booking;
   final VoidCallback? onTap;
@@ -364,13 +453,21 @@ class BookingCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(b.serviceTitle,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w800, fontSize: 14)),
+                        Text(
+                          b.serviceTitle,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 14,
+                          ),
+                        ),
                         const SizedBox(height: 4),
-                        Text('${b.optionTitle} • ${b.dayLabel}، ${b.timeSlot}',
-                            style: const TextStyle(
-                                fontSize: 11.5, color: AppColors.subtext)),
+                        Text(
+                          '${b.optionTitle} • ${b.confirmedDay ?? b.dayLabel}، ${b.confirmedSlot ?? b.timeSlot}',
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            color: AppColors.subtext,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -385,8 +482,10 @@ class BookingCard extends StatelessWidget {
                     b.providerName != null
                         ? '${b.providerEmoji ?? ''} ${b.providerName!}'
                         : 'منتظر پذیرش متخصص…',
-                    style:
-                        const TextStyle(fontSize: 12, color: AppColors.subtext),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.subtext,
+                    ),
                   ),
                   PriceLabel(b.totalPrice),
                 ],

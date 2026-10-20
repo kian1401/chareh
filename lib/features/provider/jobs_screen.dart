@@ -1,3 +1,5 @@
+import '../../core/utils/persian_utils.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -17,7 +19,10 @@ class JobsScreen extends StatelessWidget {
     if (auth.user?.role != UserRole.provider) {
       return Scaffold(
         appBar: AppBar(title: const Text('کارها')),
-        body: const EmptyState(emoji: '🔐', title: 'ابتدا به‌عنوان سرویس‌دهنده وارد شوید'),
+        body: const EmptyState(
+          emoji: '🔐',
+          title: 'ابتدا به‌عنوان سرویس‌دهنده وارد شوید',
+        ),
       );
     }
     final pid = auth.effectiveProviderId!;
@@ -27,16 +32,21 @@ class JobsScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('کارهای من 🛠️'),
-          bottom: const TabBar(tabs: [Tab(text: 'جاری'), Tab(text: 'تکمیل‌شده')]),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'جاری'),
+              Tab(text: 'تکمیل‌شده'),
+            ],
+          ),
         ),
         body: StreamBuilder<List<Booking>>(
           stream: RepoHub.instance.bookings.watchProviderJobs(pid),
           builder: (_, snap) {
             final all = snap.data ?? [];
-            final active =
-                all.where((b) => b.status.isActive).toList();
-            final done =
-                all.where((b) => b.status == BookingStatus.completed).toList();
+            final active = all.where((b) => b.status.isActive).toList();
+            final done = all
+                .where((b) => b.status == BookingStatus.completed)
+                .toList();
             return TabBarView(
               children: [
                 _JobsList(bookings: active, active: true),
@@ -77,9 +87,14 @@ class _JobsList extends StatelessWidget {
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('📍 ${b.addressText}',
-                        style: const TextStyle(
-                            fontSize: 11.5, color: Colors.grey, height: 1.6)),
+                    Text(
+                      '📍 ${toFaDigits(b.addressText)}',
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        color: Colors.grey,
+                        height: 1.6,
+                      ),
+                    ),
                     const SizedBox(height: 10),
                     Row(
                       children: [
@@ -90,16 +105,24 @@ class _JobsList extends StatelessWidget {
                               onPressed: () =>
                                   RepoHub.instance.bookings.advance(b.id),
                               icon: const Icon(Icons.play_arrow_rounded),
-                              label: Text('«${next.fa}»', overflow: TextOverflow.ellipsis),
+                              label: Text(
+                                '«${next.fa}»',
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           )
                         else
                           const Spacer(flex: 2),
                         const SizedBox(width: 8),
                         IconButton.filledTonal(
-                          onPressed: () => context.push('/chat/t_${b.id}',
-                              extra: 'گفتگو با ${b.customerName}'),
-                          icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
+                          onPressed: () => context.push(
+                            '/chat/t_${b.id}',
+                            extra: 'گفتگو با ${b.customerName}',
+                          ),
+                          icon: const Icon(
+                            Icons.chat_bubble_outline_rounded,
+                            size: 18,
+                          ),
                         ),
                       ],
                     ),
@@ -107,7 +130,11 @@ class _JobsList extends StatelessWidget {
                 )
               : Row(
                   children: [
-                    const Icon(Icons.star_rounded, color: Colors.amber, size: 18),
+                    const Icon(
+                      Icons.star_rounded,
+                      color: Colors.amber,
+                      size: 18,
+                    ),
                     const SizedBox(width: 6),
                     Text(
                       b.rating != null
@@ -118,11 +145,15 @@ class _JobsList extends StatelessWidget {
                     if ((b.review ?? '').isNotEmpty) ...[
                       const SizedBox(width: 6),
                       Expanded(
-                        child: Text('«${b.review!}»',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                                fontSize: 11, color: Colors.grey)),
+                        child: Text(
+                          '«${b.review!}»',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey,
+                          ),
+                        ),
                       ),
                     ],
                   ],

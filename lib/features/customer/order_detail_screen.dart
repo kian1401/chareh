@@ -46,11 +46,13 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       builder: (ctx) => SafeSheet(
         title: const Text('لغو سفارش؟'),
         content: const Text(
-            'لغو تا ۲ ساعت قبل از شروع سرویس رایگان است و مبلغ به کیف پول‌تان برمی‌گردد.'),
+          'لغو تا ۲ ساعت قبل از شروع سرویس رایگان است و مبلغ به کیف پول‌تان برمی‌گردد.',
+        ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('انصراف')),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('انصراف'),
+          ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
             onPressed: () => Navigator.pop(ctx, true),
@@ -70,8 +72,12 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
   Future<void> _rate(Booking b, String author) async {
     setState(() => _saving = true);
-    await RepoHub.instance.bookings
-        .rate(b.id, stars: _stars, text: _reviewCtrl.text.trim(), author: author);
+    await RepoHub.instance.bookings.rate(
+      b.id,
+      stars: _stars,
+      text: _reviewCtrl.text.trim(),
+      author: author,
+    );
     if (mounted) {
       setState(() => _saving = false);
       ScaffoldMessenger.of(context)
@@ -103,19 +109,31 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     children: [
                       Row(
                         children: [
-                          EmojiBadge(b.serviceEmoji, seed: b.serviceId, size: 54),
+                          EmojiBadge(
+                            b.serviceEmoji,
+                            seed: b.serviceId,
+                            size: 54,
+                          ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(b.serviceTitle,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w900, fontSize: 15.5)),
+                                Text(
+                                  b.serviceTitle,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 15.5,
+                                  ),
+                                ),
                                 const SizedBox(height: 4),
-                                Text(b.optionTitle,
-                                    style: const TextStyle(
-                                        color: AppColors.subtext, fontSize: 12)),
+                                Text(
+                                  b.optionTitle,
+                                  style: const TextStyle(
+                                    color: AppColors.subtext,
+                                    fontSize: 12,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -127,9 +145,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           if ((b.confirmedDay ?? '').isNotEmpty)
-                            _InfoBit('✅', 'زمان قطعی: ${b.confirmedDay} • ${b.confirmedSlot}')
+                            _InfoBit(
+                              '✅',
+                              'زمان قطعی: ${b.confirmedDay} • ${b.confirmedSlot}',
+                            )
                           else if (b.candidateDays.isNotEmpty)
-                            _InfoBit('🗓️', 'پیشنهادی شما: ${b.candidateDays.join('، ')} • ${b.candidateSlots.join('، ')}')
+                            _InfoBit(
+                              '🗓️',
+                              'پیشنهادی شما: ${b.candidateDays.join('، ')} • ${b.candidateSlots.join('، ')}',
+                            )
                           else
                             _InfoBit('⏰', '${b.dayLabel} • ${b.timeSlot}'),
                           _InfoBit('🛡️', b.maskedContact(isProvider)),
@@ -147,16 +171,28 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               if (b.providerName != null && !isProvider)
                 Card(
                   child: ListTile(
-                    leading: EmojiBadge(b.providerEmoji ?? '🧑‍🔧',
-                        seed: b.providerId ?? '', size: 44),
-                    title: Text(b.providerName!,
-                        style: const TextStyle(fontWeight: FontWeight.w800)),
-                    subtitle: const Text('متخصص تاییدشده‌ی چاره ✅',
-                        style: TextStyle(fontSize: 11.5)),
+                    leading: EmojiBadge(
+                      b.providerEmoji ?? '🧑‍🔧',
+                      seed: b.providerId ?? '',
+                      size: 44,
+                    ),
+                    title: Text(
+                      b.providerName!,
+                      style: const TextStyle(fontWeight: FontWeight.w800),
+                    ),
+                    subtitle: const Text(
+                      'متخصص تاییدشده‌ی چاره ✅',
+                      style: TextStyle(fontSize: 11.5),
+                    ),
                     trailing: FilledButton.tonalIcon(
-                      onPressed: () => context.push('/chat/t_${b.id}',
-                          extra: 'گفتگو با ${b.providerName}'),
-                      icon: const Icon(Icons.chat_bubble_outline_rounded, size: 17),
+                      onPressed: () => context.push(
+                        '/chat/t_${b.id}',
+                        extra: 'گفتگو با ${b.providerName}',
+                      ),
+                      icon: const Icon(
+                        Icons.chat_bubble_outline_rounded,
+                        size: 17,
+                      ),
                       label: const Text('چت'),
                     ),
                   ),
@@ -165,14 +201,23 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 Card(
                   child: ListTile(
                     leading: const EmojiBadge('🙋', size: 44),
-                    title: Text(b.customerName,
-                        style: const TextStyle(fontWeight: FontWeight.w800)),
-                    subtitle: Text(b.addressText,
-                        style: const TextStyle(fontSize: 11.5, height: 1.6)),
+                    title: Text(
+                      b.customerName,
+                      style: const TextStyle(fontWeight: FontWeight.w800),
+                    ),
+                    subtitle: Text(
+                      toFaDigits(b.addressText),
+                      style: const TextStyle(fontSize: 11.5, height: 1.6),
+                    ),
                     trailing: FilledButton.tonalIcon(
-                      onPressed: () => context.push('/chat/t_${b.id}',
-                          extra: 'گفتگو با ${b.customerName}'),
-                      icon: const Icon(Icons.chat_bubble_outline_rounded, size: 17),
+                      onPressed: () => context.push(
+                        '/chat/t_${b.id}',
+                        extra: 'گفتگو با ${b.customerName}',
+                      ),
+                      icon: const Icon(
+                        Icons.chat_bubble_outline_rounded,
+                        size: 17,
+                      ),
                       label: const Text('چت'),
                     ),
                   ),
@@ -182,19 +227,23 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   child: ListTile(
                     leading: Text('⏳', style: TextStyle(fontSize: 28)),
                     title: Text('در حال یافتن متخصص…'),
-                    subtitle: Text('معمولاً کمتر از چند دقیقه طول می‌کشد',
-                        style: TextStyle(fontSize: 11.5)),
+                    subtitle: Text(
+                      'معمولاً کمتر از چند دقیقه طول می‌کشد',
+                      style: TextStyle(fontSize: 11.5),
+                    ),
                   ),
                 ),
               const SizedBox(height: 12),
 
               // لغو / پیشروی سرویس‌دهنده
               if (!isProvider &&
-                  (b.status == BookingStatus.pending || b.status == BookingStatus.accepted))
+                  (b.status == BookingStatus.pending ||
+                      b.status == BookingStatus.accepted))
                 OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.danger,
-                      side: const BorderSide(color: AppColors.danger)),
+                    foregroundColor: AppColors.danger,
+                    side: const BorderSide(color: AppColors.danger),
+                  ),
                   onPressed: () => _cancel(b),
                   icon: const Icon(Icons.cancel_outlined),
                   label: const Text('لغو سفارش'),
@@ -236,10 +285,19 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     children: [
                       const SectionHeader('اطلاعات رزرو'),
                       const SizedBox(height: 10),
-                      _InfoRow(Icons.location_on_outlined, b.addressText),
+                      _InfoRow(
+                        Icons.location_on_outlined,
+                        toFaDigits(b.addressText),
+                      ),
                       if (b.addOnTitles.isNotEmpty)
-                        _InfoRow(Icons.add_circle_outline, 'افزودنی: ${b.addOnTitles.join('، ')}'),
-                      _InfoRow(Icons.payment_rounded, 'پرداخت: ${b.paymentMethod}'),
+                        _InfoRow(
+                          Icons.add_circle_outline,
+                          'افزودنی: ${b.addOnTitles.join('، ')}',
+                        ),
+                      _InfoRow(
+                        Icons.payment_rounded,
+                        'پرداخت: ${b.paymentMethod}',
+                      ),
                     ],
                   ),
                 ),
@@ -255,14 +313,17 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                         ? Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const SectionHeader('به این سرویس چه امتیازی می‌دهید؟'),
+                              const SectionHeader(
+                                'به این سرویس چه امتیازی می‌دهید؟',
+                              ),
                               const SizedBox(height: 12),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   for (var i = 1; i <= 5; i++)
                                     IconButton(
-                                      onPressed: () => setState(() => _stars = i),
+                                      onPressed: () =>
+                                          setState(() => _stars = i),
                                       icon: Icon(
                                         i <= _stars
                                             ? Icons.star_rounded
@@ -277,7 +338,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                 controller: _reviewCtrl,
                                 maxLines: 2,
                                 decoration: const InputDecoration(
-                                    hintText: 'نظرتان را بنویسید (اختیاری)…'),
+                                  hintText: 'نظرتان را بنویسید (اختیاری)…',
+                                ),
                               ),
                               const SizedBox(height: 12),
                               SizedBox(
@@ -286,14 +348,18 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                   onPressed: _saving
                                       ? null
                                       : () => _rate(
-                                          b, auth.user?.name ?? 'کاربر چاره'),
+                                          b,
+                                          auth.user?.name ?? 'کاربر چاره',
+                                        ),
                                   child: _saving
                                       ? const SizedBox(
                                           width: 20,
                                           height: 20,
                                           child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: Colors.white))
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
                                       : const Text('ثبت امتیاز'),
                                 ),
                               ),
@@ -307,8 +373,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                               RatingStars(b.rating!.toDouble(), size: 24),
                               if ((b.review ?? '').isNotEmpty) ...[
                                 const SizedBox(height: 8),
-                                Text(b.review!,
-                                    style: const TextStyle(height: 1.7)),
+                                Text(
+                                  b.review!,
+                                  style: const TextStyle(height: 1.7),
+                                ),
                               ],
                             ],
                           ),
@@ -358,7 +426,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   Container(
                     width: 2,
                     height: 34,
-                    color: i < doneCount - 1 ? AppColors.success : AppColors.border,
+                    color: i < doneCount - 1
+                        ? AppColors.success
+                        : AppColors.border,
                   ),
               ],
             ),
@@ -369,16 +439,22 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(st.fa,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 13,
-                          color: done ? AppColors.text : AppColors.subtext,
-                        )),
+                    Text(
+                      st.fa,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 13,
+                        color: done ? AppColors.text : AppColors.subtext,
+                      ),
+                    ),
                     if (ev != null)
-                      Text(timeAgoFa(ev.at),
-                          style: const TextStyle(
-                              fontSize: 11, color: AppColors.subtext)),
+                      Text(
+                        timeAgoFa(ev.at),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.subtext,
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -402,7 +478,10 @@ class _InfoBit extends StatelessWidget {
       children: [
         Text(icon, style: const TextStyle(fontSize: 15)),
         const SizedBox(width: 4),
-        Text(text, style: const TextStyle(fontSize: 11.5, color: AppColors.subtext)),
+        Text(
+          text,
+          style: const TextStyle(fontSize: 11.5, color: AppColors.subtext),
+        ),
       ],
     );
   }
@@ -423,7 +502,11 @@ class _InfoRow extends StatelessWidget {
           Icon(icon, size: 17, color: AppColors.subtext),
           const SizedBox(width: 8),
           Expanded(
-              child: Text(text, style: const TextStyle(fontSize: 12.5, height: 1.7))),
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 12.5, height: 1.7),
+            ),
+          ),
         ],
       ),
     );

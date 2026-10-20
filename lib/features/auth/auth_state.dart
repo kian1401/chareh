@@ -18,7 +18,10 @@ class AuthState extends ChangeNotifier {
     });
     // 🔗 حساب متخصص ← پروفایل متخصص (پیوند userId)
     _subProviders = RepoHub.instance.providers.watchAll().listen((ps) {
-      _linkedProviderId = ps.where((p) => p.userId != null && p.userId == user?.id).firstOrNull?.id;
+      _linkedProviderId = ps
+          .where((p) => p.userId != null && p.userId == user?.id)
+          .firstOrNull
+          ?.id;
       notifyListeners();
     });
   }
@@ -64,15 +67,23 @@ class AuthState extends ChangeNotifier {
   Future<String> sendOtp(String phone) =>
       RepoHub.instance.auth.sendOtp(phone: phone, role: portal);
 
-  Future<AppUser> verifyOtp(String phone, String code, {String? referralCode}) =>
-      RepoHub.instance.auth.verifyOtp(phone: phone, code: code, referralCode: referralCode);
+  Future<AppUser> verifyOtp(
+    String phone,
+    String code, {
+    String? referralCode,
+  }) => RepoHub.instance.auth.verifyOtp(
+    phone: phone,
+    code: code,
+    referralCode: referralCode,
+  );
 
   Future<AppUser> demoLogin(UserRole role) =>
       RepoHub.instance.auth.signInDemo(role);
 
   Future<void> signOut() => RepoHub.instance.auth.signOut();
 
-  bool isFavorite(String serviceId) => user?.favorites.contains(serviceId) ?? false;
+  bool isFavorite(String serviceId) =>
+      user?.favorites.contains(serviceId) ?? false;
 
   Future<void> toggleFavorite(String serviceId) =>
       RepoHub.instance.auth.toggleFavorite(serviceId);

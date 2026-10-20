@@ -24,7 +24,8 @@ class AdminDashboardScreen extends StatelessWidget {
         body: const NeedLogin(
           emoji: '🛡️',
           title: 'به‌عنوان مدیر وارد شوید',
-          hint: 'شرح حساب مدیر سیستم: با شمارهٔ موبایل پیش‌فرض مدیریت وارد شوید',
+          hint:
+              'شرح حساب مدیر سیستم: با شمارهٔ موبایل پیش‌فرض مدیریت وارد شوید',
         ),
       );
     }
@@ -44,10 +45,16 @@ class AdminDashboardScreen extends StatelessWidget {
                 initialData: .15,
                 builder: (_, cSnap) {
                   final commission = cSnap.data ?? .15;
-                  final completed =
-                      bookings.where((b) => b.status == BookingStatus.completed).toList();
-                  final gmv = completed.fold<int>(0, (s, b) => s + b.totalPrice);
-                  final active = bookings.where((b) => b.status.isActive).length;
+                  final completed = bookings
+                      .where((b) => b.status == BookingStatus.completed)
+                      .toList();
+                  final gmv = completed.fold<int>(
+                    0,
+                    (s, b) => s + b.totalPrice,
+                  );
+                  final active = bookings
+                      .where((b) => b.status.isActive)
+                      .length;
 
                   return ListView(
                     padding: const EdgeInsets.all(16),
@@ -61,24 +68,28 @@ class AdminDashboardScreen extends StatelessWidget {
                         childAspectRatio: 1.55,
                         children: [
                           StatCard(
-                              emoji: '💵',
-                              title: 'گردش مالی (GMV)',
-                              value: faPrice(gmv),
-                              color: AppColors.success),
+                            emoji: '💵',
+                            title: 'گردش مالی (GMV)',
+                            value: faPrice(gmv),
+                            color: AppColors.success,
+                          ),
                           StatCard(
-                              emoji: '🏦',
-                              title: 'سهم پلتفرم',
-                              value: faPrice((gmv * commission).round())),
+                            emoji: '🏦',
+                            title: 'سهم پلتفرم',
+                            value: faPrice((gmv * commission).round()),
+                          ),
                           StatCard(
-                              emoji: '🛠️',
-                              title: 'سفارش‌های فعال',
-                              value: toFaDigits(active),
-                              color: AppColors.warning),
+                            emoji: '🛠️',
+                            title: 'سفارش‌های فعال',
+                            value: toFaDigits(active),
+                            color: AppColors.warning,
+                          ),
                           StatCard(
-                              emoji: '🧑‍🔧',
-                              title: 'متخصصین فعال',
-                              value: toFaDigits(providers.length),
-                              color: AppColors.info),
+                            emoji: '🧑‍🔧',
+                            title: 'متخصصین فعال',
+                            value: toFaDigits(providers.length),
+                            color: AppColors.info,
+                          ),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -110,19 +121,26 @@ class AdminDashboardScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               SectionHeader(
-                                  'کمیسیون پلتفرم: ${toFaDigits((commission * 100).round())}٪'),
+                                'کمیسیون پلتفرم: ${toFaDigits((commission * 100).round())}٪',
+                              ),
                               Slider(
                                 value: commission,
                                 min: .05,
                                 max: .30,
                                 divisions: 25,
-                                label: '${toFaDigits((commission * 100).round())}٪',
-                                onChanged: (v) => RepoHub.instance.misc.setCommission(double.parse(v.toStringAsFixed(2))),
+                                label:
+                                    '${toFaDigits((commission * 100).round())}٪',
+                                onChanged: (v) =>
+                                    RepoHub.instance.misc.setCommission(
+                                      double.parse(v.toStringAsFixed(2)),
+                                    ),
                               ),
                               const Text(
                                 'این نرخ بلافاصله در محاسبات درآمد متخصصین اعمال می‌شود.',
                                 style: TextStyle(
-                                    fontSize: 11, color: AppColors.subtext),
+                                  fontSize: 11,
+                                  color: AppColors.subtext,
+                                ),
                               ),
                             ],
                           ),
@@ -139,14 +157,22 @@ class AdminDashboardScreen extends StatelessWidget {
                           margin: const EdgeInsets.only(bottom: 8),
                           child: ListTile(
                             dense: true,
-                            leading:
-                                EmojiBadge(b.serviceEmoji, seed: b.serviceId, size: 40),
-                            title: Text(b.serviceTitle,
-                                style: const TextStyle(
-                                    fontSize: 13, fontWeight: FontWeight.w700)),
+                            leading: EmojiBadge(
+                              b.serviceEmoji,
+                              seed: b.serviceId,
+                              size: 40,
+                            ),
+                            title: Text(
+                              b.serviceTitle,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
                             subtitle: Text(
-                                '${b.customerName} • ${b.dayLabel} ${b.timeSlot}',
-                                style: const TextStyle(fontSize: 11.5)),
+                              '${b.customerName} • ${b.dayLabel} ${b.timeSlot}',
+                              style: const TextStyle(fontSize: 11.5),
+                            ),
                             trailing: StatusChip(b.status),
                           ),
                         ),
@@ -170,7 +196,7 @@ class _StatusChart extends StatelessWidget {
   Widget build(BuildContext context) {
     const statuses = BookingStatus.values;
     final counts = {
-      for (final s in statuses) s: bookings.where((b) => b.status == s).length
+      for (final s in statuses) s: bookings.where((b) => b.status == s).length,
     };
     final max = counts.values.fold<int>(1, (a, b) => a > b ? a : b);
 
@@ -184,9 +210,13 @@ class _StatusChart extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text(toFaDigits(counts[s]),
-                      style: const TextStyle(
-                          fontSize: 11, fontWeight: FontWeight.w800)),
+                  Text(
+                    toFaDigits(counts[s]),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                   const SizedBox(height: 4),
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 400),
@@ -197,10 +227,14 @@ class _StatusChart extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  Text(s.fa,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          fontSize: 8.5, color: AppColors.subtext)),
+                  Text(
+                    s.fa,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 8.5,
+                      color: AppColors.subtext,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -219,22 +253,27 @@ class _AdminQuickRow extends StatelessWidget {
       ('شهرها', Icons.location_city_rounded, '/a/cities'),
       ('تنظیمات', Icons.tune_rounded, '/a/settings'),
     ];
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const SectionHeader('مدیریت سریع'),
-      const SizedBox(height: 4),
-      Row(children: [
-        for (final it in items)
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 8),
-              child: FilledButton.tonalIcon(
-                onPressed: () => context.push(it.$3),
-                icon: Icon(it.$2, size: 17),
-                label: Text(it.$1, style: const TextStyle(fontSize: 12)),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SectionHeader('مدیریت سریع'),
+        const SizedBox(height: 4),
+        Row(
+          children: [
+            for (final it in items)
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: FilledButton.tonalIcon(
+                    onPressed: () => context.push(it.$3),
+                    icon: Icon(it.$2, size: 17),
+                    label: Text(it.$1, style: const TextStyle(fontSize: 12)),
+                  ),
+                ),
               ),
-            ),
-          ),
-      ]),
-    ]);
+          ],
+        ),
+      ],
+    );
   }
 }

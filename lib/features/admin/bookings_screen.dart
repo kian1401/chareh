@@ -58,7 +58,9 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
                 }
                 if (list.isEmpty) {
                   return const EmptyState(
-                      emoji: '🧾', title: 'رزرویی با این فیلتر نیست');
+                    emoji: '🧾',
+                    title: 'رزرویی با این فیلتر نیست',
+                  );
                 }
                 return ListView.builder(
                   padding: const EdgeInsets.all(16),
@@ -73,21 +75,29 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
                             child: Text(
                               '👤 ${b.customerName}${b.providerName != null ? '  •  🧑‍🔧 ${b.providerName}' : ''}  •  ${timeAgoFa(b.createdAt)}',
                               style: const TextStyle(
-                                  fontSize: 11, color: AppColors.subtext),
+                                fontSize: 11,
+                                color: AppColors.subtext,
+                              ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           PopupMenuButton<BookingStatus>(
                             tooltip: 'تغییر وضعیت',
                             icon: const Icon(Icons.more_vert_rounded, size: 20),
-                            onSelected: (s) => RepoHub.instance.bookings
-                                .updateStatus(b.id, s, note: 'ویرایش توسط ادمین'),
+                            onSelected: (s) =>
+                                RepoHub.instance.bookings.updateStatus(
+                                  b.id,
+                                  s,
+                                  note: 'ویرایش توسط ادمین',
+                                ),
                             itemBuilder: (_) => [
                               for (final s in BookingStatus.values)
                                 PopupMenuItem(
                                   value: s,
-                                  child: Text(s.fa,
-                                      style: const TextStyle(fontSize: 13)),
+                                  child: Text(
+                                    s.fa,
+                                    style: const TextStyle(fontSize: 13),
+                                  ),
                                 ),
                             ],
                           ),

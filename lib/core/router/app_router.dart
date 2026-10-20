@@ -70,21 +70,49 @@ GoRouter buildRouter([String initialLocation = '/start']) {
       StatefulShellRoute.indexedStack(
         builder: (_, __, shell) => CustomerShell(shell: shell),
         branches: [
-          StatefulShellBranch(routes: [
-            GoRoute(path: '/c/home', builder: (_, __) => const CustomerHomeScreen())
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(path: '/c/services', builder: (_, s) => ServicesScreen(initialCategory: s.uri.queryParameters['cat'], initialQuery: s.uri.queryParameters['q']))
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(path: '/c/orders', builder: (_, __) => const OrdersScreen())
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(path: '/c/assistant', builder: (_, __) => const AssistantScreen())
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(path: '/c/profile', builder: (_, __) => const CustomerProfileScreen())
-          ]),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/c/home',
+                builder: (_, __) => const CustomerHomeScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/c/services',
+                builder: (_, s) => ServicesScreen(
+                  initialCategory: s.uri.queryParameters['cat'],
+                  initialQuery: s.uri.queryParameters['q'],
+                ),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/c/orders',
+                builder: (_, __) => const OrdersScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/c/assistant',
+                builder: (_, __) => const AssistantScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/c/profile',
+                builder: (_, __) => const CustomerProfileScreen(),
+              ),
+            ],
+          ),
         ],
       ),
 
@@ -92,21 +120,51 @@ GoRouter buildRouter([String initialLocation = '/start']) {
       StatefulShellRoute.indexedStack(
         builder: (_, __, shell) => ProviderShell(shell: shell),
         branches: [
-          StatefulShellBranch(routes: [
-            GoRoute(path: '/p/home', builder: (_, __) => const provider.ProviderDashboardScreen())
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(path: '/p/requests', builder: (_, __) => const RequestsScreen())
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(path: '/p/jobs', builder: (_, __) => const JobsScreen())
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(path: '/p/earnings', builder: (_, __) => const EarningsScreen())
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(path: '/p/profile', builder: (_, __) => const provider.ProviderProfileScreen())
-          ]),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/p/home',
+                builder: (_, __) => const provider.ProviderDashboardScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/p/requests',
+                builder: (_, __) => const RequestsScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(path: '/p/jobs', builder: (_, __) => const JobsScreen()),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/p/earnings',
+                builder: (_, __) => const EarningsScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/p/ai',
+                builder: (_, __) => const provider.AiHelperScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/p/profile',
+                builder: (_, __) => const provider.ProviderProfileScreen(),
+              ),
+            ],
+          ),
         ],
       ),
 
@@ -114,21 +172,62 @@ GoRouter buildRouter([String initialLocation = '/start']) {
       StatefulShellRoute.indexedStack(
         builder: (_, __, shell) => AdminShell(shell: shell),
         branches: [
-          StatefulShellBranch(routes: [
-            GoRoute(path: '/a/home', builder: (_, __) => const AdminDashboardScreen())
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(path: '/a/services', builder: (_, __) => const AdminServicesScreen())
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(path: '/a/bookings', builder: (_, __) => const AdminBookingsScreen())
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(path: '/a/users', builder: (_, __) => const AdminUsersScreen()),
-            GoRoute(path: '/a/providers', builder: (_, __) => const AdminProvidersScreen()),
-            GoRoute(path: '/a/cities', builder: (_, __) => const AdminCitiesScreen()),
-            GoRoute(path: '/a/settings', builder: (_, __) => const AdminSettingsScreen()),
-          ]),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/a/home',
+                builder: (_, __) => const AdminDashboardScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/a/services',
+                builder: (_, __) => const AdminServicesScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/a/providers',
+                builder: (_, __) => const AdminProvidersScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/a/cities',
+                builder: (_, __) => const AdminCitiesScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/a/bookings',
+                builder: (_, __) => const AdminBookingsScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/a/users',
+                builder: (_, __) => const AdminUsersScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/a/settings',
+                builder: (_, __) => const AdminSettingsScreen(),
+              ),
+            ],
+          ),
         ],
       ),
     ],

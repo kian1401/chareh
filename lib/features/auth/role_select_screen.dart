@@ -33,19 +33,23 @@ class RoleSelectScreen extends StatelessWidget {
                 const Spacer(),
                 const Text('🏙️', style: TextStyle(fontSize: 64)),
                 const SizedBox(height: 12),
-                const Text('چاره',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 34,
-                        fontWeight: FontWeight.w900)),
+                const Text(
+                  'چاره',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 34,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Text(
                   'هر خدمتی، از در خانه‌ی شما\nنظافت • تعمیرات • زیبایی • اسباب‌کشی',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      color: Colors.white.withValues(alpha: .85),
-                      fontSize: 14,
-                      height: 1.8),
+                    color: Colors.white.withValues(alpha: .85),
+                    fontSize: 14,
+                    height: 1.8,
+                  ),
                 ),
                 const Spacer(),
                 _RoleCard(
@@ -82,7 +86,9 @@ class RoleSelectScreen extends StatelessWidget {
                   Text(
                     'نسخهٔ تست — کد تأیید ۶ رقمی روی صفحهٔ ورود نمایش داده می‌شود 🧪',
                     style: TextStyle(
-                        color: Colors.white.withValues(alpha: .7), fontSize: 11.5),
+                      color: Colors.white.withValues(alpha: .7),
+                      fontSize: 11.5,
+                    ),
                   ),
                 ],
                 const SizedBox(height: 8),
@@ -126,18 +132,29 @@ class _RoleCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w800, fontSize: 15)),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 15,
+                      ),
+                    ),
                     const SizedBox(height: 3),
-                    Text(subtitle,
-                        style: const TextStyle(
-                            color: AppColors.subtext, fontSize: 12)),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        color: AppColors.subtext,
+                        fontSize: 12,
+                      ),
+                    ),
                   ],
                 ),
               ),
-              const Icon(Icons.arrow_back_ios_new_rounded,
-                  size: 16, color: AppColors.primary),
+              const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                size: 16,
+                color: AppColors.primary,
+              ),
             ],
           ),
         ),

@@ -33,10 +33,19 @@ class ProviderShell extends StatelessWidget {
     return _Shell(
       shell: shell,
       items: const [
-        (Icons.space_dashboard_rounded, Icons.space_dashboard_outlined, 'داشبورد'),
+        (
+          Icons.space_dashboard_rounded,
+          Icons.space_dashboard_outlined,
+          'داشبورد',
+        ),
         (Icons.inbox_rounded, Icons.inbox_outlined, 'درخواست‌ها'),
         (Icons.handyman_rounded, Icons.handyman_outlined, 'کارها'),
-        (Icons.account_balance_wallet_rounded, Icons.account_balance_wallet_outlined, 'درآمد'),
+        (
+          Icons.account_balance_wallet_rounded,
+          Icons.account_balance_wallet_outlined,
+          'درآمد',
+        ),
+        (Icons.smart_toy_rounded, Icons.smart_toy_outlined, 'هوش 🤖'),
         (Icons.person_rounded, Icons.person_outline_rounded, 'پروفایل'),
       ],
     );
@@ -52,8 +61,11 @@ class AdminShell extends StatelessWidget {
     const items = [
       (Icons.dashboard_rounded, Icons.dashboard_outlined, 'داشبورد'),
       (Icons.category_rounded, Icons.category_outlined, 'سرویس‌ها'),
+      (Icons.engineering_rounded, Icons.engineering_outlined, 'متخصصان'),
+      (Icons.location_city_rounded, Icons.location_city_outlined, 'شهرها'),
       (Icons.receipt_long_rounded, Icons.receipt_long_outlined, 'رزروها'),
       (Icons.group_rounded, Icons.group_outlined, 'کاربران'),
+      (Icons.tune_rounded, Icons.tune_outlined, 'تنظیمات'),
     ];
     // 🔒 گارد سراسری پنل مدیریت: بدون نقش ادمین هیچ‌کدام از زیرصفحه‌ها (رزروها/سرویس‌ها/کاربران/تنظیمات) داده نشان نمی‌دهند
     if (!context.watch<AuthState>().isAdmin) {
@@ -70,7 +82,11 @@ class AdminShell extends StatelessWidget {
               shell.goBranch(i, initialLocation: i == shell.currentIndex),
           destinations: [
             for (final (active, idle, label) in items)
-              NavigationDestination(icon: Icon(idle), selectedIcon: Icon(active), label: label),
+              NavigationDestination(
+                icon: Icon(idle),
+                selectedIcon: Icon(active),
+                label: label,
+              ),
           ],
         ),
       );

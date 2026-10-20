@@ -16,7 +16,13 @@ DeviceType deviceTypeOf(BuildContext context) {
 
 /// کارت نرم بدون سایهٔ جنگ‌زده + شنیان ملایم
 class PillowCard extends StatelessWidget {
-  const PillowCard({super.key, required this.child, this.padding, this.onTap, this.color});
+  const PillowCard({
+    super.key,
+    required this.child,
+    this.padding,
+    this.onTap,
+    this.color,
+  });
   final Widget child;
   final EdgeInsets? padding;
   final VoidCallback? onTap;
@@ -45,7 +51,13 @@ class PillowCard extends StatelessWidget {
 
 /// نمایشگر هوشمند تصویر یا اموجی — تطبیق سایز با صفحه
 class SmartIcon extends StatelessWidget {
-  const SmartIcon({super.key, required this.emoji, this.imageUrl = '', this.size = 48, this.radius = 14});
+  const SmartIcon({
+    super.key,
+    required this.emoji,
+    this.imageUrl = '',
+    this.size = 48,
+    this.radius = 14,
+  });
   final String emoji;
   final String imageUrl;
   final double size;
@@ -58,10 +70,21 @@ class SmartIcon extends StatelessWidget {
     Widget? img;
     if (hasImage) {
       img = isAsset
-          ? Image.asset(imageUrl, fit: BoxFit.cover, width: size, height: size,
-              errorBuilder: (_, __, ___) => _emoji())
-          : Image.network(imageUrl, fit: BoxFit.cover, width: size, height: size,
-              errorBuilder: (_, __, ___) => _emoji(), loadingBuilder: (c, w, p) => p == null ? w : _emoji());
+          ? Image.asset(
+              imageUrl,
+              fit: BoxFit.cover,
+              width: size,
+              height: size,
+              errorBuilder: (_, __, ___) => _emoji(),
+            )
+          : Image.network(
+              imageUrl,
+              fit: BoxFit.cover,
+              width: size,
+              height: size,
+              errorBuilder: (_, __, ___) => _emoji(),
+              loadingBuilder: (c, w, p) => p == null ? w : _emoji(),
+            );
     }
     return ClipRRect(
       borderRadius: BorderRadius.circular(radius),
@@ -70,21 +93,29 @@ class SmartIcon extends StatelessWidget {
   }
 
   Widget _emoji() => Container(
-        width: size, height: size, alignment: Alignment.center,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(radius),
-          gradient: const LinearGradient(
-            colors: [Color(0xFFF3F0FF), Color(0xFFE9E3FF)],
-            begin: Alignment.topRight, end: Alignment.bottomLeft,
-          ),
-        ),
-        child: Text(emoji, style: TextStyle(fontSize: size * 0.48)),
-      );
+    width: size,
+    height: size,
+    alignment: Alignment.center,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(radius),
+      gradient: const LinearGradient(
+        colors: [Color(0xFFF3F0FF), Color(0xFFE9E3FF)],
+        begin: Alignment.topRight,
+        end: Alignment.bottomLeft,
+      ),
+    ),
+    child: Text(emoji, style: TextStyle(fontSize: size * 0.48)),
+  );
 }
 
 /// گرید واکنش‌گرا — تعداد ستون بر اساس عرض نمایشگر
 class AdaptiveGrid extends StatelessWidget {
-  const AdaptiveGrid({super.key, required this.count, required this.item, this.ratio = 1.0});
+  const AdaptiveGrid({
+    super.key,
+    required this.count,
+    required this.item,
+    this.ratio = 1.0,
+  });
   final int count;
   final Widget Function(int i) item;
   final double ratio;
@@ -97,7 +128,9 @@ class AdaptiveGrid extends StatelessWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: cols, mainAxisSpacing: 12, crossAxisSpacing: 12,
+        crossAxisCount: cols,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
         childAspectRatio: ratio,
       ),
       itemCount: count,
@@ -121,8 +154,14 @@ class SectionTitle extends StatelessWidget {
           if (emoji != null) Text(emoji!, style: const TextStyle(fontSize: 18)),
           if (emoji != null) const SizedBox(width: 8),
           Expanded(
-            child: Text(text,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF111827),
+              ),
+            ),
           ),
           if (action != null) action!,
         ],
@@ -133,7 +172,12 @@ class SectionTitle extends StatelessWidget {
 
 /// وقتی ورود لازم است — به‌جای دکمهٔ ورود دمو، به صفحه‌ی OTP واقعی می‌فرستد
 class NeedLogin extends StatelessWidget {
-  const NeedLogin({super.key, required this.emoji, required this.title, this.hint = ''});
+  const NeedLogin({
+    super.key,
+    required this.emoji,
+    required this.title,
+    this.hint = '',
+  });
   final String emoji, title, hint;
 
   @override
@@ -146,11 +190,18 @@ class NeedLogin extends StatelessWidget {
           children: [
             Text(emoji, style: const TextStyle(fontSize: 64)),
             const SizedBox(height: 12),
-            Text(title, textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+            ),
             if (hint.isNotEmpty) ...[
               const SizedBox(height: 8),
-              Text(hint, textAlign: TextAlign.center, style: const TextStyle(color: Color(0xFF6B7280))),
+              Text(
+                hint,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Color(0xFF6B7280)),
+              ),
             ],
             const SizedBox(height: 20),
             FilledButton.icon(
@@ -168,7 +219,13 @@ class NeedLogin extends StatelessWidget {
 /// 🩹 جایگزین امن AlertDialog در وب: پاپ AlertDialog روی CanvasKit سرفیس رندر را نابود می‌کرد؛
 /// باتم‌شیت همان UX را بدون کرش می‌دهد (در موبایل هم طبیعی‌تر است).
 class SafeSheet extends StatelessWidget {
-  const SafeSheet({super.key, this.title, this.content, this.actions, this.titlePadding});
+  const SafeSheet({
+    super.key,
+    this.title,
+    this.content,
+    this.actions,
+    this.titlePadding,
+  });
   final Widget? title;
   final Widget? content;
   final List<Widget>? actions;
@@ -178,27 +235,40 @@ class SafeSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final bottom = MediaQuery.of(context).viewInsets.bottom;
     return Padding(
-      padding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: bottom + 16),
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 4,
+        bottom: bottom + 16,
+      ),
       child: SingleChildScrollView(
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          if (title != null)
-            DefaultTextStyle(
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800) ??
-                  const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
-              child: title!,
-            ),
-          if (title != null) const SizedBox(height: 10),
-          if (content != null) content!,
-          if (actions != null && actions!.isNotEmpty) ...[
-            const SizedBox(height: 14),
-            Row(children: [
-              for (var i = 0; i < actions!.length; i++) ...[
-                if (i > 0) const SizedBox(width: 10),
-                Expanded(child: actions![i]),
-              ],
-            ]),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (title != null)
+              DefaultTextStyle(
+                style:
+                    Theme.of(context).textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w800) ??
+                    const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+                child: title!,
+              ),
+            if (title != null) const SizedBox(height: 10),
+            if (content != null) content!,
+            if (actions != null && actions!.isNotEmpty) ...[
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  for (var i = 0; i < actions!.length; i++) ...[
+                    if (i > 0) const SizedBox(width: 10),
+                    Expanded(child: actions![i]),
+                  ],
+                ],
+              ),
+            ],
           ],
-        ]),
+        ),
       ),
     );
   }

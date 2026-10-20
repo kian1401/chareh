@@ -30,21 +30,31 @@ class OrdersScreen extends StatelessWidget {
             ? EmptyState(
                 emoji: '🔐',
                 title: 'برای دیدن سفارش‌ها وارد شوید',
-                body: 'با ورود، تاریخچه‌ی سفارش و وضعیت زنده‌ی آن‌ها را می‌بینید',
+                body:
+                    'با ورود، تاریخچه‌ی سفارش و وضعیت زنده‌ی آن‌ها را می‌بینید',
                 actionText: 'ورود / ثبت‌نام',
                 onAction: () => context.push('/auth'),
               )
             : StreamBuilder<List<Booking>>(
-                stream: RepoHub.instance.bookings
-                    .watchCustomerBookings(auth.user!.id),
+                stream: RepoHub.instance.bookings.watchCustomerBookings(
+                  auth.user!.id,
+                ),
                 builder: (_, snap) {
                   final all = snap.data ?? [];
                   final current = all.where((b) => b.status.isActive).toList();
                   final past = all.where((b) => !b.status.isActive).toList();
                   return TabBarView(
                     children: [
-                      _BookingList(bookings: current, emptyEmoji: '📭', emptyText: 'سفارش جاری ندارید\nاز صفحه‌ی اصلی یک سرویس رزرو کنید'),
-                      _BookingList(bookings: past, emptyEmoji: '🧾', emptyText: 'هنوز سفارشی ثبت نکرده‌اید'),
+                      _BookingList(
+                        bookings: current,
+                        emptyEmoji: '📭',
+                        emptyText: 'سفارش جاری ندارید\nاز صفحه‌ی اصلی یک سرویس رزرو کنید',
+                      ),
+                      _BookingList(
+                        bookings: past,
+                        emptyEmoji: '🧾',
+                        emptyText: 'هنوز سفارشی ثبت نکرده‌اید',
+                      ),
                     ],
                   );
                 },
@@ -76,7 +86,9 @@ class _BookingList extends StatelessWidget {
       itemBuilder: (_, i) => BookingCard(
         booking: bookings[i],
         onTap: () => context.push('/order/${bookings[i].id}'),
-        footer: bookings[i].status == BookingStatus.completed && bookings[i].rating == null
+        footer:
+            bookings[i].status == BookingStatus.completed &&
+                bookings[i].rating == null
             ? SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(

@@ -1,283 +1,681 @@
-/// پایگاه‌داده‌ی درون‌حافظه‌ای دمو با استریم‌های واکنش‌گرا (شبیه‌سازی Firestore)
-/// ⚙️ نسخهٔ «واقعی‌نما»: بدون کاربران/متخصصان جعلی — همه با OTP ثبت می‌شوند
+/// پیاده‌سازی موک ریپازیتوری‌ها روی MockDb — رفتار «واقعی» (بدون دادهٔ جعلی)
 library;
 
 import 'dart:async';
-import 'dart:math';
 
 import '../../core/utils/persian_utils.dart';
 import '../models.dart';
+import '../repositories.dart';
+import 'mock_database.dart';
 
-class MockDb {
-  static final MockDb _instance = MockDb._internal();
-  factory MockDb() => _instance;
-  MockDb._internal() {
-    _seed();
-  }
+class MockAuthRepository implements AuthRepository {
+  MockAuthRepository(this.db);
+  final MockDb db;
 
-  // ─────────── موتور استریم ───────────
-  final StreamController<void> _changes = StreamController<void>.broadcast();
+  @override
+  AppUser? get currentUser => db.currentUser;
 
-  Stream<T> streamOf<T>(T Function() read) async* {
-    yield read();
-    await for (final _ in _changes.stream) {
-      yield read();
-    }
-  }
+  @override
+  Stream<AppUser?> watchUser() => db.streamOf(() => db.currentUser);
 
-  void emit() => _changes.add(null);
-  Future<void> latency([int ms = 250]) => Future<void>.delayed(Duration(milliseconds: ms));
-
-  // ───────────────────────────── داده‌ها ─────────────────────────────
-  AppUser? currentUser;
-  String requestedRole = 'customer';
-
-  /// 📲 شماره → کد تأیید صادرشده (شبیه‌سازی SMS — در حالت واقعی با کاوه‌نگار فرستاده می‌شود)
-  final Map<String, String> otpCodes = {};
-
-  /// 🔐 شماره‌های مجاز پنل مدیریت — شمارهٔ ارشد ثابت است و خودش بقیه را ثبت می‌کند
-  static const masterAdminPhone = '09148002461';
-  final Set<String> adminPhones = {masterAdminPhone};
-
-  bool isAdminPhone(String phone) => adminPhones.contains(phone);
-
-  String issueOtp(String phone) {
-    final c = (100000 + Random().nextInt(900000)).toString();
-    otpCodes[phone] = c;
-    return c;
-  }
-
-  /// 👥 رجیستری واقعی کاربران بر اساس شماره موبایل (بدون دموی جعلی)
-  final Map<String, AppUser> usersByPhone = {};
-  final List<ProviderProfile> providers = [];
-
-  final List<Category> categories = [];
-  final List<ServiceItem> services = [];
-  final Map<String, List<Review>> _reviews = {};
-  final List<City> cities = [];
-  final AppSettings settings = AppSettings();
-  final List<WalletTxn> walletTxns = [];
-  final List<Booking> bookings = [];
-  final Map<String, List<ChatMessage>> threads = {};
-  final Map<String, List<EarningEntry>> _earnings = {};
-  final Map<String, List<AddressItem>> addresses = {};
-  final List<AppNotification> notifications = [];
-
-  int _ctr = 0;
-  String nextId([String p = 'id']) => '$p${(++_ctr).toString().padLeft(4, '0')}';
-
-  List<Review> reviewsFor(String id) => _reviews[id] ?? [];
-  List<EarningEntry> get earnings => _earnings['all'] ?? [];
-
-  /// 🔐 ایجاد/یافتن کاربر با شماره (رفتار واقعی — هر شماره = یک حساب)
-  AppUser userFromPhone(String phone, UserRole role, {String? referredBy}) {
-    var u = usersByPhone[phone];
-    if (u == null) {
-      final code = 'CHR${(usersByPhone.length + 137) % 9999}';
-      u = AppUser(
-        id: nextId('u'),
-        name: role == UserRole.provider ? 'متخصص چاره' : (role == UserRole.admin ? 'مدیر سیستم' : 'کاربر چاره'),
-        phone: phone,
-        role: role,
-        referralCode: code,
-        referredBy: referredBy,
-        avatarEmoji: role == UserRole.provider ? '🧑‍🔧' : (role == UserRole.admin ? '🛡️' : '🌸'),
+  @override
+  Future<String> sendOtp({
+    required String phone,
+    required UserRole role,
+  }) async {
+    await db.latency(700);
+    // 🔐 قفل پنل مدیریت: فقط شمارهٔ ارشد و مدیران ثبت‌شده
+    if (role == UserRole.admin && !db.isAdminPhone(phone)) {
+      throw Exception(
+        'این شماره در فهرست مدیران نیست؛ فقط مدیر ارشد می‌تواند دسترسی بدهد.',
       );
-      usersByPhone[phone] = u;
-      // 📮 آدرس‌کتاب پیش‌فرض واقعی خالی
-      addresses[u.id] = [];
-      // 🔗 متخصص: اگر ادمین پروفایلی با همین شماره ساخته، خودکار لینکش کن تا پنلش باز شود
-      if (role == UserRole.provider) {
-        final prof = providers.where((p) => p.phone == phone && p.userId == null).firstOrNull;
-        if (prof != null) {
-          prof.userId = u.id;
-          u.name = prof.name;
-          u.avatarEmoji = prof.emoji;
-        }
-      }
-      // 🎁 پاداش دعوت
-      if (referredBy != null && referredBy.isNotEmpty) {
-        final inviter = usersByPhone.values.where((x) => x.referralCode == referredBy).firstOrNull;
-        if (inviter != null) {
-          inviter.walletBalance += settings.referralReward;
-          walletTxns.add(WalletTxn(
-            id: nextId('w'), userId: inviter.id,
-            title: 'پاداش دعوت از دوستان 🎁', amount: settings.referralReward,
-            isBonus: true, at: DateTime.now(),
-          ));
-          walletTxns.add(WalletTxn(
-            id: nextId('w'), userId: u.id,
-            title: 'اعتبار هدیهٔ شروع (کد دعوت)', amount: settings.referralReward ~/ 2,
-            isBonus: true, at: DateTime.now(),
-          ));
-          u.walletBalance += settings.referralReward ~/ 2;
-        }
-      }
     }
-    return u;
+    db.requestedRole = role.name;
+    return db.issueOtp(phone); // 🧪 در حالت تست کد برای نمایش برمی‌گردد
   }
 
-  // ───────────────────────────── سید ─────────────────────────────
-  void _seed() {
-    // 🏙️ شهرهای بزرگ — فقط ارومیه فعال (ادمین هر شهر را به‌طور زنده روشن می‌کند)
-    final cityList = <(String, String)>[
-      ('urmia', 'آذربایجان غربی'), ('tabriz', 'آذربایجان شرقی'), ('tehran', 'تهران'),
-      ('mashhad', 'خراسان رضوی'), ('isfahan', 'اصفهان'), ('shiraz', 'فارس'),
-      ('ahvaz', 'خوزستان'), ('qom', 'قم'), ('karaj', 'البرز'), ('kermanshah', 'کرمانشاه'),
-      ('rasht', 'گیلان'), ('zahedan', 'سیستان و بلوچستان'), ('yazd', 'یزد'),
-      ('hamedan', 'همدان'), ('kerman', 'کرمان'), ('ardabil', 'اردبیل'),
-      ('bushehr', 'بوشهر'), ('birjand', 'خراسان جنوبی'), ('zanjan', 'زنجان'), ('sari', 'مازندران'),
-    ];
-    final cityNames = {
-      'urmia': 'ارومیه', 'tabriz': 'تبریز', 'tehran': 'تهران', 'mashhad': 'مشهد',
-      'isfahan': 'اصفهان', 'shiraz': 'شیراز', 'ahvaz': 'اهواز', 'qom': 'قم',
-      'karaj': 'کرج', 'kermanshah': 'کرمانشاه', 'rasht': 'رشت', 'zahedan': 'زاهدان',
-      'yazd': 'یزد', 'hamedan': 'همدان', 'kerman': 'کرمان', 'ardabil': 'اردبیل',
-      'bushehr': 'بوشهر', 'birjand': 'بیرجند', 'zanjan': 'زنجان', 'sari': 'ساری',
-    };
-    for (final (id, prov) in cityList) {
-      cities.add(City(id: id, title: cityNames[id]!, province: prov, active: id == 'urmia'));
+  @override
+  Future<AppUser> verifyOtp({
+    required String phone,
+    required String code,
+    String? referralCode,
+  }) async {
+    await db.latency(700);
+    final sent = db.otpCodes[phone];
+    if (sent == null)
+      throw Exception('کدی برای این شماره صادر نشده؛ ابتدا درخواست کد کنید');
+    if (sent != code)
+      throw Exception('کد تایید اشتباه است — کد نمایش‌داده‌شده را وارد کنید');
+    db.otpCodes.remove(phone);
+    final role = UserRoleX.fromName(db.requestedRole);
+    if (role == UserRole.admin && !db.isAdminPhone(phone)) {
+      throw Exception(
+        'این شماره در فهرست مدیران نیست؛ فقط مدیر ارشد می‌تواند دسترسی بدهد.',
+      );
     }
+    // 📲 رفتار واقعی: هر شماره = یک حساب دائمی (حساب جدید می‌سازد اگر نباشد)
+    final user = db.userFromPhone(phone, role, referredBy: referralCode);
+    db.currentUser = user;
+    db.emit();
+    return user;
+  }
 
-    // 🗂️ کاتالوگ تلفیقی — ذائقهٔ اصلی دسته‌بندی‌ها، زیرمجموعه‌شان ادغام شد
-    ServiceItem svc(String id, String cat, String title, String desc, String emoji, int price,
-            List<(String, String, int, String)> opts, [List<(String, int)>? adds, List<String>? tags]) =>
-        ServiceItem(
-          id: id, categoryId: cat, title: title, description: desc, emoji: emoji, basePrice: price,
-          options: [for (var i = 0; i < opts.length; i++) ServiceOption(id: '${id}_o$i', title: opts[i].$1, subtitle: opts[i].$2, price: opts[i].$3, duration: opts[i].$4)],
-          addOns: [for (var i = 0; i < (adds ?? []).length; i++) AddOn(id: '${id}_a$i', title: adds![i].$1, price: adds[i].$2)],
-          tags: tags ?? [],
+  @override
+  Future<AppUser> signInDemo(UserRole role) async {
+    await db.latency(300);
+    final user = db.userFromPhone('09140000000', role);
+    db.currentUser = user;
+    db.emit();
+    return user;
+  }
+
+  @override
+  Future<void> toggleFavorite(String serviceId) async {
+    final u = db.currentUser;
+    if (u == null) return;
+    u.favorites.contains(serviceId)
+        ? u.favorites.remove(serviceId)
+        : u.favorites.add(serviceId);
+    db.emit();
+  }
+
+  @override
+  Future<void> signOut() async {
+    db.currentUser = null;
+    db.emit();
+  }
+}
+
+class MockCatalogRepository implements CatalogRepository {
+  MockCatalogRepository(this.db);
+  final MockDb db;
+
+  @override
+  Stream<List<Category>> watchCategories({bool includeHidden = false}) =>
+      db.streamOf(() {
+        final l = includeHidden
+            ? db.categories
+            : db.categories.where((c) => c.active);
+        return (l.toList())..sort((a, b) => a.order.compareTo(b.order));
+      });
+
+  @override
+  Stream<List<ServiceItem>> watchServices({
+    String? categoryId,
+    String? query,
+    bool includeHidden = false,
+  }) => db.streamOf(() => db.services).map((l) {
+    var res = includeHidden ? l.toList() : l.where((s) => s.active).toList();
+    if (categoryId != null)
+      res = res.where((s) => s.categoryId == categoryId).toList();
+    if (query != null && query.trim().isNotEmpty) {
+      final q = query.trim();
+      res = res
+          .where(
+            (s) =>
+                s.title.contains(q) ||
+                s.description.contains(q) ||
+                s.tags.any((t) => t.contains(q)),
+          )
+          .toList();
+    }
+    return res;
+  });
+
+  @override
+  Stream<ServiceItem?> watchService(String id) => db.streamOf(
+    () => db.services.where((s) => s.id == id).cast<ServiceItem?>().firstOrNull,
+  );
+
+  @override
+  Stream<List<Review>> watchReviews(String serviceId) =>
+      db.streamOf(() => db.reviewsFor(serviceId));
+
+  @override
+  Stream<List<ProviderProfile>> watchProviders({bool activeOnly = true}) =>
+      db.streamOf(
+        () => activeOnly
+            ? db.providers.where((p) => p.active).toList()
+            : db.providers,
+      );
+
+  @override
+  Stream<List<City>> watchCities({bool activeOnly = true}) => db.streamOf(
+    () => activeOnly ? db.cities.where((c) => c.active).toList() : db.cities,
+  );
+
+  @override
+  Future<void> upsertService(ServiceItem s) async {
+    await db.latency(150);
+    final i = db.services.indexWhere((e) => e.id == s.id);
+    i >= 0 ? db.services[i] = s : db.services.add(s);
+    db.emit();
+  }
+
+  @override
+  Future<void> deleteService(String id) async {
+    await db.latency(150);
+    db.services.removeWhere((s) => s.id == id);
+    db.emit();
+  }
+
+  @override
+  Future<void> upsertCategory(Category c) async {
+    await db.latency(150);
+    final i = db.categories.indexWhere((e) => e.id == c.id);
+    i >= 0 ? db.categories[i] = c : db.categories.add(c);
+    db.emit();
+  }
+
+  @override
+  Future<void> deleteCategory(String id) async {
+    await db.latency(150);
+    db.categories.removeWhere((c) => c.id == id);
+    db.emit();
+  }
+
+  @override
+  Future<void> upsertCity(City c) async {
+    await db.latency(120);
+    final i = db.cities.indexWhere((e) => e.id == c.id);
+    i >= 0 ? db.cities[i] = c : db.cities.add(c);
+    db.emit();
+  }
+
+  @override
+  Future<void> deleteCity(String id) async {
+    await db.latency(120);
+    db.cities.removeWhere((e) => e.id == id);
+    db.emit();
+  }
+}
+
+class MockBookingRepository implements BookingRepository {
+  MockBookingRepository(this.db);
+  final MockDb db;
+
+  List<Booking> _sorted(Iterable<Booking> l) =>
+      l.toList()..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+  @override
+  Stream<List<Booking>> watchCustomerBookings(String customerId) => db.streamOf(
+    () => _sorted(db.bookings.where((b) => b.customerId == customerId)),
+  );
+
+  @override
+  Stream<List<Booking>> watchProviderRequests(String cityId) => db.streamOf(
+    () => _sorted(
+      db.bookings.where(
+        (b) =>
+            b.providerId == null &&
+            b.status == BookingStatus.pending &&
+            b.cityId == cityId,
+      ),
+    ),
+  );
+
+  @override
+  Stream<List<Booking>> watchProviderJobs(String providerId) => db.streamOf(
+    () => _sorted(db.bookings.where((b) => b.providerId == providerId)),
+  );
+
+  @override
+  Stream<List<Booking>> watchAll() => db.streamOf(() => _sorted(db.bookings));
+
+  @override
+  Stream<Booking?> watchBookingById(String id) => db.streamOf(
+    () => db.bookings.where((b) => b.id == id).cast<Booking?>().firstOrNull,
+  );
+
+  Booking _find(String id) => db.bookings.firstWhere((b) => b.id == id);
+
+  @override
+  Future<Booking> createBooking({
+    required BookingDraft draft,
+    required AppUser customer,
+  }) async {
+    await db.latency(400);
+    final s = draft.service!;
+    final b = Booking(
+      id: db.nextId('b'),
+      serviceId: s.id,
+      serviceTitle: s.title,
+      serviceEmoji: s.emoji,
+      optionTitle: draft.option!.title,
+      addOnTitles: [
+        for (final a in s.addOns)
+          if (draft.addOnIds.contains(a.id)) a.title,
+      ],
+      customerId: customer.id,
+      customerName: customer.name,
+      customerPhone: customer.phone, // 🔒 قبل از پذیرش ماسک می‌شود
+      cityId: draft.cityId,
+      dayLabel: draft.days.join('، '),
+      timeSlot: draft.slots.join('، '),
+      candidateDays: draft.days.toList(),
+      candidateSlots: draft.slots.toList(),
+      addressText: '${draft.address!.title} — ${draft.address!.fullText}',
+      addressLat: draft.address!.lat,
+      addressLng: draft.address!.lng,
+      totalPrice: draft.total,
+      paymentMethod: draft.paymentMethod,
+    );
+    // 💳 پرداخت از کیف پول (واقعی‌نما)
+    if (draft.paymentMethod == 'کیف پول') {
+      if (customer.walletBalance < draft.total) {
+        throw Exception('موجودی کیف پول کافی نیست');
+      }
+      customer.walletBalance -= draft.total;
+      db.walletTxns.add(
+        WalletTxn(
+          id: db.nextId('w'),
+          userId: customer.id,
+          title: 'پرداخت سفارش ${s.title}',
+          amount: -draft.total,
+          at: DateTime.now(),
+        ),
+      );
+    }
+    db.bookings.add(b);
+    db.notifications.insert(
+      0,
+      AppNotification(
+        id: db.nextId('n'),
+        title: 'سفارش ثبت شد 🎉',
+        emoji: '🎉',
+        at: DateTime.now(),
+        body:
+            '${s.title} — ${b.candidateDays.length} روز پیشنهادی. متخصصِ شهر شما مناسب‌ترین زمان را نهایی می‌کند.',
+      ),
+    );
+    db.emit();
+    return b;
+  }
+
+  @override
+  Future<void> accept(
+    String bookingId,
+    ProviderProfile provider, {
+    required String day,
+    required String slot,
+  }) async {
+    await db.latency(250);
+    _find(bookingId)
+      ..providerId = provider.id
+      ..providerName = provider.name
+      ..providerEmoji = provider.emoji
+      ..confirmedDay = day
+      ..confirmedSlot = slot
+      ..contactRevealed =
+          true // پس از پذیرش پل ارتباط باز است (ضد دور زدن: همه چیز لیمیت‌دار)
+      ..status = BookingStatus.accepted
+      ..timeline.add(
+        StatusEvent(
+          BookingStatus.accepted,
+          DateTime.now(),
+          note: 'زمان نهایی: $day، $slot',
+        ),
+      );
+    db.emit();
+  }
+
+  @override
+  Future<void> reject(String bookingId, {String? reason}) async {
+    await db.latency(150);
+    _find(bookingId)
+      ..status = BookingStatus.rejected
+      ..timeline.add(
+        StatusEvent(BookingStatus.rejected, DateTime.now(), note: reason),
+      );
+    db.emit();
+  }
+
+  @override
+  Future<void> advance(String bookingId) async {
+    final next = _find(bookingId).status.next;
+    if (next != null) await updateStatus(bookingId, next);
+  }
+
+  @override
+  Future<void> updateStatus(
+    String bookingId,
+    BookingStatus status, {
+    String? note,
+  }) async {
+    await db.latency(150);
+    final b = _find(bookingId)
+      ..status = status
+      ..timeline.add(StatusEvent(status, DateTime.now(), note: note));
+    // 💰 پرداخت کامل به متخصص: ورود درآمد هنگام تکمیل واقعی‌نما (حالا با کمیسیون پلتفرم تمیز)
+    if (status == BookingStatus.completed && b.providerId != null) {
+      final net = (b.totalPrice * (1 - db.settings.commissionRate)).round();
+      db.earnings.add(
+        EarningEntry(
+          id: db.nextId('e'),
+          title:
+              'تسویهٔ «${b.serviceTitle}» — ${b.confirmedDay ?? b.dayLabel} ${b.confirmedSlot ?? b.timeSlot}',
+          dateLabel: faDayLabel(DateTime.now()),
+          amount: net,
+          settled: true,
+        ),
+      );
+      db.emit();
+    }
+  }
+
+  @override
+  Future<void> cancel(String bookingId) =>
+      updateStatus(bookingId, BookingStatus.cancelled);
+
+  @override
+  Future<void> rate(
+    String bookingId, {
+    required int stars,
+    required String text,
+    required String author,
+  }) async {
+    await db.latency(150);
+    final b = _find(bookingId)
+      ..rating = stars
+      ..review = text;
+    // ⭐ امتیاز تمام‌عمری متخصص + سرویس هر دو واقعی به‌روز می‌شوند
+    final p = db.providers.where((e) => e.id == b.providerId).firstOrNull;
+    if (p != null) {
+      p.rating = ((p.rating * p.ratingCount) + stars) / (p.ratingCount + 1);
+      p.ratingCount++;
+      p.jobsDone++;
+    }
+    final svc = db.services.where((s) => s.id == b.serviceId).firstOrNull;
+    if (svc != null) {
+      svc.rating =
+          ((svc.rating * svc.ratingCount) + stars) / (svc.ratingCount + 1);
+      svc.ratingCount++;
+      svc.jobsDone++;
+    }
+    db.emit();
+  }
+}
+
+class MockProviderRepository implements ProviderRepository {
+  MockProviderRepository(this.db);
+  final MockDb db;
+
+  @override
+  Stream<ProviderProfile?> watchProfile(String providerId) => db.streamOf(
+    () => db.providers
+        .where((p) => p.id == providerId)
+        .cast<ProviderProfile?>()
+        .firstOrNull,
+  );
+
+  @override
+  Stream<List<ProviderProfile>> watchAll() => db.streamOf(() => db.providers);
+
+  @override
+  Stream<List<EarningEntry>> watchEarnings(String providerId) =>
+      db.streamOf(() => db.earnings);
+
+  @override
+  Future<void> setOnline(String providerId, bool online) async {
+    await db.latency(120);
+    final p = db.providers.where((e) => e.id == providerId).firstOrNull;
+    if (p != null) {
+      p.online = online;
+      db.emit();
+    }
+  }
+
+  @override
+  Future<void> setVerified(String providerId, bool verified) async {
+    await db.latency(120);
+    final p = db.providers.where((e) => e.id == providerId).firstOrNull;
+    if (p != null) {
+      p.verified = verified;
+      db.emit();
+    }
+  }
+
+  @override
+  Future<void> upsertProvider(ProviderProfile p) async {
+    await db.latency(150);
+    final i = db.providers.indexWhere((e) => e.id == p.id);
+    i >= 0 ? db.providers[i] = p : db.providers.add(p);
+    db.emit();
+  }
+
+  @override
+  Future<void> removeProvider(String providerId) async {
+    await db.latency(150);
+    final p = db.providers.where((e) => e.id == providerId).firstOrNull;
+    if (p != null) {
+      p.active = false;
+      p.online = false;
+      db.emit();
+    }
+  }
+}
+
+class MockChatRepository implements ChatRepository {
+  MockChatRepository(this.db);
+  final MockDb db;
+
+  @override
+  Stream<List<ChatMessage>> watchThread(String threadId) =>
+      db.streamOf(() => db.threads[threadId] ?? []);
+
+  @override
+  Future<void> send(
+    String threadId,
+    String text, {
+    bool fromCustomer = true,
+  }) async {
+    final list = db.threads.putIfAbsent(threadId, () => []);
+    list.add(
+      ChatMessage(
+        id: db.nextId('m'),
+        threadId: threadId,
+        isMine: true,
+        text: text,
+        at: DateTime.now(),
+      ),
+    );
+    db.emit();
+    unawaited(
+      Future.delayed(const Duration(seconds: 1), () {
+        list.add(
+          ChatMessage(
+            id: db.nextId('m'),
+            threadId: threadId,
+            isMine: false,
+            text: fromCustomer
+                ? 'بله حتماً 👍 ممنون از هماهنگی شما.'
+                : 'متشکرم، انجام شد ✅',
+            at: DateTime.now(),
+          ),
         );
-
-    // 🛠️ ۱) تعمیرات لوازم خانگی (همهٔ لوازم: یخچال، لباسشویی، ظرفشویی...)
-    categories.add(Category(id: 'c_appliance', title: 'تعمیرات لوازم خانگی', emoji: '🛠️', order: 1, featured: true));
-    services.addAll([
-      svc('s_fridge', 'c_appliance', 'تعمیر یخچال و فریزر ساید',
-          'عیب‌یابی با گازسنجی، کمپرسور، ترموستات، برد کنترل. تعمیر در محل با ۹۰ روز گارانتی.', '🧊', 450000,
-          [('تعمیر یخچال و فریزر', 'عیب‌یابی + تعمیر در محل', 450000, '۲ ساعت'),
-           ('تعمیر سایدبای‌ساید', 'برد، کمپرسور، آی‌سی‌میکر', 650000, '۳ ساعت'),
-           ('شارژ گاز یخچال', 'نشتی‌یابی + شارژ R134/R600', 700000, '۱٫۵ ساعت')],
-          [('گارانتی ۹۰ روزه تعمیرات', 0), ('کابین داخلی شیشه' , 50000)], ['یخچال','سرد نشدن','کمپرسور','گاز']),
-      svc('s_wash', 'c_appliance', 'تعمیر ماشین لباسشویی',
-          'تعمیر تمام برندها: الکتروپمپی‌ها، برد کنترل، یاتاقان، سنسور قفل درب.', '👕', 400000,
-          [('تعمیر لباسشویی در محل', 'عمودی و درب از جلو', 400000, '۲ ساعت'),
-           ('تعویض یاتاقان و بلبرینگ', 'به‌همراه کاسه‌نمد', 750000, '۳ ساعت')],
-          [('شست‌وشوی داخل دستگاه', 60000)], ['لباسشویی','تخلیه نمی‌شود','صدای داد']),
-      svc('s_dish', 'c_appliance', 'تعمیر ماشین ظرفشویی',
-          'پمپ تخلیه، هیتر، بازوی شست‌وشو، سنسورها. تست کامل پس از تعمیر.', '🍽️', 420000,
-          [('تعمیر ظرفشویی در محل', 'همه برندها', 420000, '۲ ساعت')],
-          [('تعمیر و تعویض شیر برقی', 0)], ['ظرفشویی','آب نمی‌کشد','نشتی']),
-      svc('s_stove', 'c_appliance', 'تعمیر اجاق‌گاز و فر رومیزی',
-          'فندک الکترونیکی، ترموکوپل، کلیدها، شیشهٔ باز. ایمنی‌یابی نشتی گاز.', '🔥', 350000,
-          [('تعمیر اجاق‌گاز', 'صفحه‌ای یا مبله', 350000, '۱٫۵ ساعت')]),
-      svc('s_tv', 'c_appliance', 'نصب و تعمیر تلویزیون LED/OLED',
-          'نصب دیواری استاندارد، تنظیم آنتن، تعمیر برد و پنل.', '📺', 500000,
-          [('نصب دیواری تلویزیون', 'تا ۶۵ اینچ + پایه‌فلز', 500000, '۱ ساعت'),
-           ('تعمیر برد تلویزیون', 'در محل/کارگاه', 900000, '۱–۲ روز')]),
-      svc('s_smallapp', 'c_appliance', 'تعمیرات لوازم کوچک (جارو، مایکرو...)',
-          'جاروبرقی، مایکرو ویو، اتو، سرخ‌کن، قهوه‌ساز. قیمت پس از عیب‌یابی.', '🧹', 250000,
-          [('عیب‌یابی + برآورد', 'آب‌عجمی کامل', 250000, '۱–۲ ساعت')]),
-    ]);
-
-    // ❄️ ۲) سرمایش و گرمایش (کولر، پکیج، شوفاژ)
-    categories.add(Category(id: 'c_hvac', title: 'سرمایش و گرمایش', emoji: '❄️', order: 2));
-    services.addAll([
-      svc('s_cooler', 'c_hvac', 'سرویس اساسی کولر آبی',
-          'شست‌واسی، تنظیم تسمه، تعویض پادی‌ها، سیم‌کشی سالم. قبل از فصل! 💦', '🌬️', 380000,
-          [('سرویس کامل کولر آبی', 'شست‌وشو + پادها + روانکاری', 380000, '۱٫۵ ساعت'),
-           ('تعمیر موتور کولر', 'کویل بلند بودن رابطه', 550000, '۲ ساعت')]),
-      svc('s_package', 'c_hvac', 'سرویس و اسیدشویی پکیج',
-          'اسیدشویی محلول استاندارد، تعمیر پمپ، سرویس مشعل، تنظیم فشار.', '🔧', 800000,
-          [('اسیدشویی + سرویس دوره‌ای', 'همه برندها', 800000, '۲ ساعت')]),
-      svc('s_radiator', 'c_hvac', 'نصب و هواگیری شوفاژ',
-          'روشن نشدن؟ هواگیری، تعویض شیر، ترمیم نشتی لوله‌کشی.', '♨️', 300000,
-          [('هواگیری + تست فشار', 'تمام خانه', 300000, '۱ ساعت')]),
-    ]);
-
-    // 🔌 ۳) برق‌کاری و تاسیسات برق
-    categories.add(Category(id: 'c_elec', title: 'برق‌کاری و تاسیسات', emoji: '🔌', order: 3));
-    services.addAll([
-      svc('s_wiring', 'c_elec', 'سیم‌کشی و برق‌رسانی استاندارد',
-          'توزیع مجدد، پریز و کلید اضافه، ترمیم نشتی برق، تورقی مهران و electrician.', '💡', 320000,
-          [('عیب‌یابی مدار خانه', 'تست نشتی و جمع‌کننده', 320000, '۱–۲ ساعت')]),
-      svc('s_board', 'c_elec', 'نصب فیوز، کلید و پریز ضد‌نشتی',
-          'کلید محافظ جان (RCD)، کابل استاندارد، تابلو مینیاتوری.', '⚡', 280000,
-          [('نصب کلید محافظ جان', 'با تست کامل', 280000, '۱ ساعت')]),
-      svc('s_lamp', 'c_elec', 'نصب لوستر و روشنایی طراح',
-          'لوستر سقفی/دیواری، نورپردازی پنهان، تست فاز.', '💡', 220000,
-          [('نصب لوستر متوسط', 'تا ۸ شاخه', 220000, '۱ ساعت')]),
-    ]);
-
-    // 🔧 ۴) لوله‌کشی و تاسیسات آب
-    categories.add(Category(id: 'c_plumb', title: 'لوله‌کشی و تخلیه آب', emoji: '🔧', order: 4));
-    services.addAll([
-      svc('s_leak', 'c_plumb', 'ترمیم نشتی لوله و شیرآلات',
-          'تشخیص نشتی بدون تخریب، تعویض شیر سریع، ترمیم خط گرم/سرد.', '💧', 400000,
-          [('ترمیم نشتی در محل', 'تشخیص + ترمیم', 400000, '۱–۲ ساعت')]),
-      svc('s_drain', 'c_plumb', 'رفع انسداد و تخلیه فاضلاب',
-          'بازکردن لولهٔ سریع، فاضلاب‌روی استاندارد، رفع بوی نامطبوع.', '🚿', 350000,
-          [('رفع انسداد دستگاهی', 'آشپزخانه/حمام', 350000, '۱ ساعت')]),
-    ]);
-
-    // 🎨 ۵) نقاشی و بازسازی
-    categories.add(Category(id: 'c_paint', title: 'نقاشی و بازسازی', emoji: '🎨', order: 5));
-    services.addAll([
-      svc('s_wall', 'c_paint', 'نقاشی ساختمان (آکریلیک/اولیه)',
-          'بتونه‌کاری کامل دیوار در‌مدفن، آکریلیک درجه یک، متری یا روزمزد.', '🖌️', 900000,
-          [('نقاشی واحد ۷۰ متری', 'شامل بتونه و پوشش دوج به هم', 900000, '۴ روز')]),
-      svc('s_reno', 'c_paint', 'بازسازی حمام و آشپزخانه',
-          'کاشی‌کاری، تخریب‌اجماع، کابینت و صفحه. برآورد کامل رایگان.', '🏠', 500000,
-          [('برآورد رایگان در محل', 'کاشی و تخریب', 500000, '۱ ساعت')]),
-    ]);
-
-    // 🧹 ۶) نظافت و بهداشت
-    categories.add(Category(id: 'c_clean', title: 'نظافت و سمپاشی', emoji: '🧹', order: 6));
-    services.addAll([
-      svc('s_deep', 'c_clean', 'نظافت به‌صورت عمیق (Deep Clean)',
-          'تیم ۲ نفره با واکیوم صنعتی، آشپزخانه و سرویس‌ها، ۶ ساعت.', '✨', 1600000,
-          [('دیتیل کلین واحد ۶۰ متری', 'کامل', 1600000, '۶ ساعت')]),
-      svc('s_pest', 'c_clean', 'سمپاشی تخصصی (مشاوره پسیم)',
-          'ژل‌کاری + داربست‌سازی، سم‌های کم‌بو، گارانتی ۶۰ روز.', '🐛', 700000,
-          [('سمپاشی طبقه ویلا', 'تا ۱۵۰ متر', 700000, '۲ ساعت')]),
-    ]);
-
-    // ⭐ چند نمرهٔ دمو برای سرویس‌ها (بدون نقد جعلی کاربران)
-    for (final s in services) {
-      s.rating = 4.5 + (s.id.hashCode % 5) / 10;
-      s.ratingCount = 0;
-    }
-
-    // 🛡️ حساب ادمین از پیش تعریف‌شده (فقط مدیر — کاربر جعلی نیست)
-    usersByPhone['09000000000'] = AppUser(
-      id: 'u_admin', name: 'مدیر سیستم چاره', phone: '09000000000',
-      role: UserRole.admin, avatarEmoji: '🛡️', referralCode: 'CHRADMIN',
+        db.emit();
+      }),
     );
   }
+}
 
-  // ─────────────────── کارشناس آفلاین (هوش کمکی سید) ───────────────────
-  String assistantReply(String prompt) {
-    final p = prompt;
-    if (p.contains('کولر') || p.contains('سرما')) {
-      return '💬 برای کولر آبی: چک کن تسمه سالم باشد، پادها را تعویض کرده باشی و آب اوقاف شود. اگر بوی بد می‌دهد تعویض آغشته به آلودگی لازم است. می‌خواهی یک متخصص سرمایش برایت بفرستم؟';
-    }
-    if (p.contains('لوله') || p.contains('نشتی')) {
-      return 'شیر افقی را ببند و عکس از محل نشتی بگیر؛ عده‌ای دیرز یاسه‌ای را بعد از سندبض اینچی پوشش می‌دهند. برای ترمیم در محل رزرو بزن ✅';
-    }
-    return 'متشکرم! بر اساس شرح شما بهترین مسیر: رزرو عیب‌یابی در محل با سرویس‌دهندهٔ مربوطه است. می‌توانی سرویت را از دسته‌بندی‌ها انتخاب کنی یا سوال دقیق‌تری بپرسی 🙂';
+class MockMiscRepository implements MiscRepository {
+  MockMiscRepository(this.db);
+  final MockDb db;
+
+  @override
+  Stream<List<String>> watchAdminPhones() =>
+      db.streamOf(() => (db.adminPhones.toList()..sort()));
+
+  @override
+  Future<void> addAdminPhone(String phone) async {
+    db.adminPhones.add(phone);
+    db.emit();
   }
 
-  /// 🤖 کارشناس آفلاین عیب‌یابی برای متخصص (تا وقتی Gemini وصل شود آفلاین است)
-  String providerAiReply(String prompt) {
-    final p = prompt;
-    if (p.contains('سرد نمی')) {
-      return '🔍 تشخیص «یخچال سرد نمی‌کند»:\n۱) برودت فریزر؟ → دمپر یا فن نیست\n۲) ترموستات را ۵ دقیقه تنظیم به مد می‌کنی → شنواری رله داری؟\n۳) بدترادف کمپرسور گرم؟ → کندانسور را با فوت بالا از پشت بشوی\n۴) اگر برفک داری → سیستم دیفراست (هیتر/سنسور/تایمر)\n🛠️ کالاهای حتمی: مولتی‌متر، گازسنج لیزر، منیفولد. ایمنی: برق را قطع کن قبل از فشار کمپرسور! ⚡';
+  @override
+  Future<void> removeAdminPhone(String phone) async {
+    if (phone == MockDb.masterAdminPhone)
+      throw Exception('شمارهٔ مدیر ارشد قابل حذف نیست');
+    db.adminPhones.remove(phone);
+    db.emit();
+  }
+
+  @override
+  Stream<List<AppNotification>> watchNotifications(String userId) =>
+      db.streamOf(() => db.notifications);
+
+  @override
+  Future<void> markAllRead(String userId) async {
+    for (final n in db.notifications) {
+      n.unread = false;
     }
-    if (p.contains('تخلیه') || p.contains('آب') && p.contains('لباس')) {
-      return '🔍 تحلیل «لباسشویی تخلیه نمی‌کند»:\n۱) پمپ تخلیه را با ولتاژ مستقیم تست کن\n۲) فیلتر را باز — جسم خارجی؟\n۳) شلنگ تخلیه را با هوای فشرده پرید\n۴) اگر چراغ خطا می‌دهد → بردکی را در مد عیب‌یابی بخوان\n📏 نکته فنی: پمپ‌های پنتاک گریندال (Pentair) با ولتاژ اسیالاتور نیمه‌روش دارند — با چشم سریع تست نکن.';
+    db.emit();
+  }
+
+  @override
+  Future<List<AddressItem>> getAddresses(String userId) async =>
+      db.addresses[userId] ?? [];
+
+  @override
+  Future<void> addAddress(
+    String userId, {
+    required String title,
+    required String text,
+    double lat = 37.55,
+    double lng = 45.07,
+    String cityId = 'urmia',
+    String plaque = '',
+    String floor = '',
+    String unit = '',
+  }) async {
+    final list = db.addresses.putIfAbsent(userId, () => []);
+    list.add(
+      AddressItem(
+        id: db.nextId('ad'),
+        title: title,
+        text: text,
+        lat: lat,
+        lng: lng,
+        cityId: cityId,
+        plaque: plaque,
+        floor: floor,
+        unit: unit,
+      ),
+    );
+    db.emit();
+  }
+
+  @override
+  Stream<double> watchCommission() =>
+      db.streamOf(() => db.settings.commissionRate);
+
+  @override
+  Future<void> setCommission(double v) async {
+    db.settings.commissionRate = v;
+    db.emit();
+  }
+
+  @override
+  Stream<AppSettings> watchSettings() => db.streamOf(() => db.settings);
+
+  @override
+  Future<void> saveSettings(AppSettings s) async {
+    db.settings
+      ..appTitle = s.appTitle
+      ..primaryHex = s.primaryHex
+      ..fontFamily = s.fontFamily
+      ..heroImageUrl = s.heroImageUrl
+      ..logoEmoji = s.logoEmoji
+      ..geminiApiKey = s.geminiApiKey
+      ..defaultCityId = s.defaultCityId
+      ..bonusTiers = s.bonusTiers
+      ..referralReward = s.referralReward
+      ..commissionRate = s.commissionRate
+      ..telegramUrl = s.telegramUrl
+      ..instagramUrl = s.instagramUrl
+      ..whatsappUrl = s.whatsappUrl
+      ..socialOrderComingSoon = s.socialOrderComingSoon;
+    db.emit();
+  }
+
+  @override
+  Stream<List<WalletTxn>> watchWallet(String userId) => db.streamOf(
+    () =>
+        (db.walletTxns.where((t) => t.userId == userId).toList())
+          ..sort((a, b) => b.at.compareTo(a.at)),
+  );
+
+  @override
+  Future<({int bonus, int total})> chargeWallet(
+    String userId,
+    int amount,
+  ) async {
+    await db.latency(700);
+    final u = db.usersByPhone.values.where((e) => e.id == userId).firstOrNull;
+    if (u == null) return (bonus: 0, total: amount);
+    // 🎁 بونس پلکانی طبق تنظیمات ادمین
+    var percent = 0;
+    for (final t in db.settings.bonusTiers) {
+      if (amount >= t.minAmount && t.bonusPercent > percent)
+        percent = t.bonusPercent;
     }
-    if (p.contains('نقشه') || p.contains('نقشه')) {
-      return '🗺️ برای خواندن نقشه‌های تاسیساتی:\n- لوله‌های آبی نرم: خط آبی ممتد\n- خط فاضلاب: خط‌چین حائز?\n- اتاق‌های گرم در آموزش‌بخش مخصوص است\n📸 اگر عکس نقشه را بارگزاری کنی، برداشت تقریبی‌ام را می‌دهم (پس از اتصال به Gemini Vision روشن می‌شود).';
+    final bonus = (amount * percent / 100).round();
+    u.walletBalance += amount + bonus;
+    u.points += (amount / 10000).floor();
+    db.walletTxns.add(
+      WalletTxn(
+        id: db.nextId('w'),
+        userId: userId,
+        title: 'شارژ کیف پول 💳',
+        amount: amount,
+        at: DateTime.now(),
+      ),
+    );
+    if (bonus > 0) {
+      db.walletTxns.add(
+        WalletTxn(
+          id: db.nextId('w'),
+          userId: userId,
+          title: 'هدیهٔ شارژ ویژه ${percent.toString()}٪ 🎁',
+          amount: bonus,
+          isBonus: true,
+          at: DateTime.now(),
+        ),
+      );
     }
-    return '🧠 من کارشناس عیب‌یابی چارهام. علائم دستگاه را دقیق بگو (برند، مدل، کم‌تایپ ریست) تا راهنمای قدم‌به‌قدم با تعمیر فوری بدهم. برای پاسخ‌های پیشرفته، کلید Gemini را ادمین در تنظیمات بچسباند.';
+    db.emit();
+    return (bonus: bonus, total: amount + bonus);
+  }
+
+  @override
+  Future<bool> payWithWallet(String userId, int amount, String label) async {
+    final u = db.usersByPhone.values.where((e) => e.id == userId).firstOrNull;
+    if (u == null || u.walletBalance < amount) return false;
+    u.walletBalance -= amount;
+    db.walletTxns.add(
+      WalletTxn(
+        id: db.nextId('w'),
+        userId: userId,
+        title: label,
+        amount: -amount,
+        at: DateTime.now(),
+      ),
+    );
+    db.emit();
+    return true;
+  }
+
+  @override
+  Future<String> askAssistant(String prompt) async {
+    await db.latency(900);
+    return db.assistantReply(prompt);
+  }
+
+  @override
+  Future<String> askProviderExpert(String prompt) async {
+    // اگر کلید Gemini تنظیم شده باشد، فاز بعدی به API واقعی وصل می‌شود؛ فعلاً کارشناس آفلاین
+    await db.latency(1100);
+    return db.providerAiReply(prompt);
   }
 }

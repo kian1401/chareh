@@ -38,7 +38,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           final list = snap.data ?? [];
           if (list.isEmpty) {
             return const EmptyState(
-                emoji: '🔕', title: 'اعلانی ندارید', body: 'خبرهای جدید اینجا نمایش داده می‌شود');
+              emoji: '🔕',
+              title: 'اعلانی ندارید',
+              body: 'خبرهای جدید اینجا نمایش داده می‌شود',
+            );
           }
           return ListView.separated(
             padding: const EdgeInsets.all(16),
@@ -52,14 +55,24 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     backgroundColor: AppColors.primary.withValues(alpha: .08),
                     child: Text(n.emoji),
                   ),
-                  title: Text(n.title,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w800, fontSize: 13)),
-                  subtitle: Text(n.body,
-                      style: const TextStyle(fontSize: 12, height: 1.6)),
-                  trailing: Text(timeAgoFa(n.at),
-                      style: const TextStyle(
-                          fontSize: 10, color: AppColors.subtext)),
+                  title: Text(
+                    n.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 13,
+                    ),
+                  ),
+                  subtitle: Text(
+                    n.body,
+                    style: const TextStyle(fontSize: 12, height: 1.6),
+                  ),
+                  trailing: Text(
+                    timeAgoFa(n.at),
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: AppColors.subtext,
+                    ),
+                  ),
                   isThreeLine: true,
                 ),
               );

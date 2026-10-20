@@ -35,17 +35,22 @@ class ProviderDashboardScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Row(children: [
-          const Text('داشبورد متخصص'),
-          if (previewing) ...[
-            const SizedBox(width: 8),
-            Chip(
-              avatar: const Text('🛡️'),
-              label: const Text('پیش‌نمایش ادمین', style: TextStyle(fontSize: 10.5)),
-              padding: EdgeInsets.zero,
-            ),
+        title: Row(
+          children: [
+            const Text('داشبورد متخصص'),
+            if (previewing) ...[
+              const SizedBox(width: 8),
+              Chip(
+                avatar: const Text('🛡️'),
+                label: const Text(
+                  'پیش‌نمایش ادمین',
+                  style: TextStyle(fontSize: 10.5),
+                ),
+                padding: EdgeInsets.zero,
+              ),
+            ],
           ],
-        ]),
+        ),
         actions: previewing
             ? [
                 TextButton(
@@ -80,38 +85,53 @@ class ProviderDashboardScreen extends StatelessWidget {
                             Row(
                               children: [
                                 Flexible(
-                                  child: Text(p?.name ?? '…',
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.w900,
-                                          fontSize: 16)),
+                                  child: Text(
+                                    p?.name ?? '…',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 16,
+                                    ),
+                                  ),
                                 ),
                                 if (p?.level == 'برتر') ...[
                                   const SizedBox(width: 6),
                                   Container(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 7, vertical: 2),
+                                      horizontal: 7,
+                                      vertical: 2,
+                                    ),
                                     decoration: BoxDecoration(
-                                      color: AppColors.accent.withValues(alpha: .15),
+                                      color: AppColors.accent.withValues(
+                                        alpha: .15,
+                                      ),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child: const Text('⭐ برتر',
-                                        style: TextStyle(
-                                            fontSize: 10.5,
-                                            fontWeight: FontWeight.w800,
-                                            color: AppColors.warning)),
+                                    child: const Text(
+                                      '⭐ برتر',
+                                      style: TextStyle(
+                                        fontSize: 10.5,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppColors.warning,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ],
                             ),
                             const SizedBox(height: 5),
-                            if (p != null) RatingStars(p.rating, showValue: true),
+                            if (p != null)
+                              RatingStars(p.rating, showValue: true),
                             const SizedBox(height: 4),
                             Row(
                               children: [
                                 if (p?.verified == true)
-                                  const Text('✅ هویت تایید شده',
-                                      style: TextStyle(
-                                          fontSize: 11, color: AppColors.success)),
+                                  const Text(
+                                    '✅ هویت تایید شده',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: AppColors.success,
+                                    ),
+                                  ),
                               ],
                             ),
                           ],
@@ -119,9 +139,13 @@ class ProviderDashboardScreen extends StatelessWidget {
                       ),
                       Column(
                         children: [
-                          const Text('آنلاین',
-                              style: TextStyle(
-                                  fontSize: 11, color: AppColors.subtext)),
+                          const Text(
+                            'آنلاین',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: AppColors.subtext,
+                            ),
+                          ),
                           Switch(
                             value: p?.online ?? true,
                             onChanged: (v) => repo.providers.setOnline(pid, v),
@@ -138,14 +162,21 @@ class ProviderDashboardScreen extends StatelessWidget {
               StreamBuilder<List<EarningEntry>>(
                 stream: repo.providers.watchEarnings(pid),
                 builder: (_, eSnap) {
-                  final monthIncome = (eSnap.data ?? [])
-                      .fold<int>(0, (sum, e) => sum + e.amount);
+                  final monthIncome = (eSnap.data ?? []).fold<int>(
+                    0,
+                    (sum, e) => sum + e.amount,
+                  );
                   return StreamBuilder<List<Booking>>(
                     stream: repo.bookings.watchProviderJobs(pid),
                     builder: (_, jSnap) {
                       final jobs = jSnap.data ?? [];
                       final today = jobs
-                          .where((b) => b.dayLabel == 'امروز' && b.status.isActive)
+                          .where(
+                            (b) =>
+                                (b.confirmedDay == 'امروز' ||
+                                    b.dayLabel.contains('امروز')) &&
+                                b.status.isActive,
+                          )
                           .length;
                       return StreamBuilder<List<Booking>>(
                         stream: repo.bookings.watchProviderRequests("urmia"),
@@ -160,25 +191,30 @@ class ProviderDashboardScreen extends StatelessWidget {
                             childAspectRatio: 1.55,
                             children: [
                               StatCard(
-                                  emoji: '💰',
-                                  title: 'درآمد این ماه',
-                                  value: faPrice(monthIncome),
-                                  color: AppColors.success),
+                                emoji: '💰',
+                                title: 'درآمد این ماه',
+                                value: faPrice(monthIncome),
+                                color: AppColors.success,
+                              ),
                               StatCard(
-                                  emoji: '🛠️',
-                                  title: 'کارهای امروز',
-                                  value: toFaDigits(today)),
+                                emoji: '🛠️',
+                                title: 'کارهای امروز',
+                                value: toFaDigits(today),
+                              ),
                               StatCard(
-                                  emoji: '📥',
-                                  title: 'درخواست جدید',
-                                  value: toFaDigits(requests),
-                                  color: AppColors.warning),
+                                emoji: '📥',
+                                title: 'درخواست جدید',
+                                value: toFaDigits(requests),
+                                color: AppColors.warning,
+                              ),
                               StatCard(
-                                  emoji: '⭐',
-                                  title: 'امتیاز من',
-                                  value: toFaDigits(
-                                      (p?.rating ?? 0).toStringAsFixed(1)),
-                                  color: AppColors.info),
+                                emoji: '⭐',
+                                title: 'امتیاز من',
+                                value: toFaDigits(
+                                  (p?.rating ?? 0).toStringAsFixed(1),
+                                ),
+                                color: AppColors.info,
+                              ),
                             ],
                           );
                         },
@@ -196,15 +232,25 @@ class ProviderDashboardScreen extends StatelessWidget {
                 stream: repo.bookings.watchProviderJobs(pid),
                 builder: (_, snap) {
                   final todayJobs = (snap.data ?? [])
-                      .where((b) => b.dayLabel == 'امروز' && b.status.isActive)
+                      .where(
+                        (b) =>
+                            (b.confirmedDay == 'امروز' ||
+                                b.dayLabel.contains('امروز')) &&
+                            b.status.isActive,
+                      )
                       .toList();
                   if (todayJobs.isEmpty) {
                     return const Card(
                       child: Padding(
                         padding: EdgeInsets.all(20),
                         child: Center(
-                          child: Text('برای امروز کاری ثبت نشده — استراحت کنید ☕',
-                              style: TextStyle(color: AppColors.subtext, fontSize: 12.5)),
+                          child: Text(
+                            'برای امروز کاری ثبت نشده — استراحت کنید ☕',
+                            style: TextStyle(
+                              color: AppColors.subtext,
+                              fontSize: 12.5,
+                            ),
+                          ),
                         ),
                       ),
                     );

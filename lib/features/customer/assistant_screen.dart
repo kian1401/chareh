@@ -21,8 +21,10 @@ class _AssistantScreenState extends State<AssistantScreen> {
   final _ctrl = TextEditingController();
   final _scroll = ScrollController();
   final List<_Msg> _messages = [
-    const _Msg(false,
-        'سلام! من دستیار هوشمند چارهم 🤖💜\nمی‌توانم درباره‌ی قیمت‌ها، انتخاب سرویس، رزرو و پیگیری کمکتان کنم.'),
+    const _Msg(
+      false,
+      'سلام! من دستیار هوشمند چارهم 🤖💜\nمی‌توانم درباره‌ی قیمت‌ها، انتخاب سرویس، رزرو و پیگیری کمکتان کنم.',
+    ),
   ];
   bool _typing = false;
 
@@ -54,8 +56,11 @@ class _AssistantScreenState extends State<AssistantScreen> {
   void _scrollToEnd() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scroll.hasClients) {
-        _scroll.animateTo(_scroll.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
+        _scroll.animateTo(
+          _scroll.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOut,
+        );
       }
     });
   }
@@ -74,8 +79,10 @@ class _AssistantScreenState extends State<AssistantScreen> {
         title: const Column(
           children: [
             Text('دستیار چاره', style: TextStyle(fontSize: 16)),
-            Text('پاسخگوی ۲۴ ساعته ✨',
-                style: TextStyle(fontSize: 10.5, color: AppColors.success)),
+            Text(
+              'پاسخگوی ۲۴ ساعته ✨',
+              style: TextStyle(fontSize: 10.5, color: AppColors.success),
+            ),
           ],
         ),
       ),
@@ -90,15 +97,28 @@ class _AssistantScreenState extends State<AssistantScreen> {
                 if (i == _messages.length) {
                   return _Bubble(
                     mine: false,
-                    child: Text('• • •',
-                        style: TextStyle(
-                            color: AppColors.primary.withValues(alpha: .6),
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900)),
+                    child: Text(
+                      '• • •',
+                      style: TextStyle(
+                        color: AppColors.primary.withValues(alpha: .6),
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
                   );
                 }
                 final m = _messages[i];
-                return _Bubble(mine: m.mine, child: Text(m.text, style: TextStyle(height: 1.8, fontSize: 13, color: m.mine ? Colors.white : AppColors.text)));
+                return _Bubble(
+                  mine: m.mine,
+                  child: Text(
+                    m.text,
+                    style: TextStyle(
+                      height: 1.8,
+                      fontSize: 13,
+                      color: m.mine ? Colors.white : AppColors.text,
+                    ),
+                  ),
+                );
               },
             ),
           ),
@@ -110,7 +130,10 @@ class _AssistantScreenState extends State<AssistantScreen> {
               itemCount: suggestions.length,
               separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (_, i) => ActionChip(
-                label: Text(suggestions[i], style: const TextStyle(fontSize: 11.5)),
+                label: Text(
+                  suggestions[i],
+                  style: const TextStyle(fontSize: 11.5),
+                ),
                 onPressed: () => _send(suggestions[i]),
               ),
             ),
@@ -125,7 +148,8 @@ class _AssistantScreenState extends State<AssistantScreen> {
                     textInputAction: TextInputAction.send,
                     onSubmitted: (_) => _send(),
                     decoration: const InputDecoration(
-                        hintText: 'سوال‌تان را بپرسید…'),
+                      hintText: 'سوال‌تان را بپرسید…',
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -154,7 +178,9 @@ class _Bubble extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * .78),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * .78,
+        ),
         decoration: BoxDecoration(
           color: mine ? AppColors.primary : Colors.white,
           borderRadius: BorderRadius.only(

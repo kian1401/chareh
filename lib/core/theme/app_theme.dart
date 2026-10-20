@@ -28,7 +28,8 @@ class AppColors {
   ];
 
   static List<Color> gradientFor(String seed) =>
-      gradients[seed.codeUnits.fold<int>(0, (a, b) => a + b) % gradients.length];
+      gradients[seed.codeUnits.fold<int>(0, (a, b) => a + b) %
+          gradients.length];
 }
 
 class AppTheme {
@@ -54,8 +55,12 @@ class AppTheme {
         backgroundColor: AppColors.surface,
         surfaceTintColor: Colors.transparent,
         elevation: 0.5,
-        titleTextStyle: GoogleFonts.getFont('Vazirmatn',
-            fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.text),
+        titleTextStyle: GoogleFonts.getFont(
+          'Vazirmatn',
+          fontSize: 17,
+          fontWeight: FontWeight.w700,
+          color: AppColors.text,
+        ),
       ),
       cardTheme: CardThemeData(
         color: AppColors.surface,
@@ -72,18 +77,26 @@ class AppTheme {
           foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(52),
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(radius)),
-          textStyle: GoogleFonts.getFont('Vazirmatn',
-              fontSize: 15, fontWeight: FontWeight.w800),
+            borderRadius: BorderRadius.circular(radius),
+          ),
+          textStyle: GoogleFonts.getFont(
+            'Vazirmatn',
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+          ),
           elevation: 0,
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14)),
-          textStyle: GoogleFonts.getFont('Vazirmatn',
-              fontSize: 13.5, fontWeight: FontWeight.w800),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          textStyle: GoogleFonts.getFont(
+            'Vazirmatn',
+            fontSize: 13.5,
+            fontWeight: FontWeight.w800,
+          ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -92,14 +105,17 @@ class AppTheme {
           side: const BorderSide(color: AppColors.primary),
           foregroundColor: AppColors.primary,
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(radius)),
+            borderRadius: BorderRadius.circular(radius),
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surface,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 18,
+          vertical: 15,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radius),
           borderSide: const BorderSide(color: AppColors.border),
@@ -128,11 +144,16 @@ class AppTheme {
         backgroundColor: AppColors.surface,
         indicatorColor: AppColors.primary.withValues(alpha: .14),
         labelTextStyle: WidgetStatePropertyAll(
-          GoogleFonts.getFont('Vazirmatn',
-              fontSize: 11.5, fontWeight: FontWeight.w600),
+          GoogleFonts.getFont(
+            'Vazirmatn',
+            fontSize: 11.5,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
-      snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating),
+      snackBarTheme: const SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 }

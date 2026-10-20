@@ -123,23 +123,26 @@ class _ServicesScreenState extends State<ServicesScreen> {
                   if (snap.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
-                  final list = (snap.data ?? []).where((s) => s.active).toList();
+                  final list = (snap.data ?? [])
+                      .where((s) => s.active)
+                      .toList();
                   if (list.isEmpty) {
                     return const EmptyState(
                       emoji: '🔍',
                       title: 'چیزی پیدا نشد',
-                      body: 'عبارت دیگری را جستجو کنید یا دسته‌بندی را عوض کنید',
+                      body:
+                          'عبارت دیگری را جستجو کنید یا دسته‌بندی را عوض کنید',
                     );
                   }
                   return GridView.builder(
                     padding: const EdgeInsets.all(16),
                     gridDelegate:
                         const SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 200,
-                      mainAxisExtent: 205,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                    ),
+                          maxCrossAxisExtent: 200,
+                          mainAxisExtent: 205,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                        ),
                     itemCount: list.length,
                     itemBuilder: (_, i) => ServiceCard(
                       service: list[i],
