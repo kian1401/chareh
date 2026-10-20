@@ -86,6 +86,15 @@ class MockDb {
       usersByPhone[phone] = u;
       // 📮 آدرس‌کتاب پیش‌فرض واقعی خالی
       addresses[u.id] = [];
+      // 🔗 متخصص: اگر ادمین پروفایلی با همین شماره ساخته، خودکار لینکش کن تا پنلش باز شود
+      if (role == UserRole.provider) {
+        final prof = providers.where((p) => p.phone == phone && p.userId == null).firstOrNull;
+        if (prof != null) {
+          prof.userId = u.id;
+          u.name = prof.name;
+          u.avatarEmoji = prof.emoji;
+        }
+      }
       // 🎁 پاداش دعوت
       if (referredBy != null && referredBy.isNotEmpty) {
         final inviter = usersByPhone.values.where((x) => x.referralCode == referredBy).firstOrNull;

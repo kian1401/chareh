@@ -388,7 +388,9 @@ class AddressItem {
   final double lat;
   final double lng;
   final String cityId;
-  final String plaque; // پلاک / واحد
+  final String plaque; // پلاک
+  final String floor; // طبقه
+  final String unit; // شمارهٔ واحد
   final bool isDefault;
 
   const AddressItem({
@@ -399,12 +401,23 @@ class AddressItem {
     this.lng = 45.07,
     this.cityId = 'urmia',
     this.plaque = '',
+    this.floor = '',
+    this.unit = '',
     this.isDefault = false,
   });
 
+  /// متن کمل آدرس برای نمایش/رزرو
+  String get fullText {
+    final parts = <String>[text];
+    if (plaque.isNotEmpty) parts.add('پلاک $plaque');
+    if (floor.isNotEmpty) parts.add('طبقهٔ $floor');
+    if (unit.isNotEmpty) parts.add('واحد $unit');
+    return parts.join('، ');
+  }
+
   Map<String, dynamic> toJson() => {
         'title': title, 'text': text, 'lat': lat, 'lng': lng,
-        'cityId': cityId, 'plaque': plaque, 'isDefault': isDefault,
+        'cityId': cityId, 'plaque': plaque, 'floor': floor, 'unit': unit, 'isDefault': isDefault,
       };
 
   factory AddressItem.fromJson(String id, Map<String, dynamic> j) => AddressItem(
@@ -415,6 +428,8 @@ class AddressItem {
         lng: (j['lng'] ?? 45.07).toDouble(),
         cityId: j['cityId'] ?? 'urmia',
         plaque: j['plaque'] ?? '',
+        floor: j['floor'] ?? '',
+        unit: j['unit'] ?? '',
         isDefault: j['isDefault'] ?? false,
       );
 }

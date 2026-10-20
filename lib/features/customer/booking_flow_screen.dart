@@ -246,6 +246,9 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
   Future<void> _openAddressDialog({required bool mapFirst}) async {
     final title = TextEditingController();
     final desc = TextEditingController();
+    final plaque = TextEditingController();
+    final floor = TextEditingController();
+    final unit = TextEditingController();
     LatLng pin = const LatLng(37.5486, 45.0679); // 📍 مرکز ارومیه
     bool useMap = mapFirst;
 
@@ -317,10 +320,34 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
               TextField(
                 controller: desc,
                 decoration: const InputDecoration(
-                  labelText: 'آدرس دقیق (خیابان، کوچه، پلاک)',
+                  labelText: 'آدرس دقیق (خیابان، کوچه)',
                   prefixIcon: Icon(Icons.notes_rounded),
                 ),
               ),
+              const SizedBox(height: 8),
+              // 🏠 پلاک / طبقه / واحد
+              Row(children: [
+                Expanded(
+                  child: TextField(
+                    controller: plaque,
+                    decoration: const InputDecoration(labelText: 'پلاک', prefixIcon: Icon(Icons.signpost_rounded)),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: floor,
+                    decoration: const InputDecoration(labelText: 'طبقه', prefixIcon: Icon(Icons.stairs_rounded)),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: unit,
+                    decoration: const InputDecoration(labelText: 'واحد', prefixIcon: Icon(Icons.door_front_door_rounded)),
+                  ),
+                ),
+              ]),
               const SizedBox(height: 14),
               FilledButton(
                 onPressed: () {
@@ -344,6 +371,9 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
         lat: pin.latitude,
         lng: pin.longitude,
         cityId: d.cityId,
+        plaque: plaque.text.trim(),
+        floor: floor.text.trim(),
+        unit: unit.text.trim(),
       );
       final fresh = await RepoHub.instance.misc.getAddresses(auth.user!.id);
       setState(() {

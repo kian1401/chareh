@@ -392,9 +392,9 @@ class FirebaseMiscRepository implements MiscRepository {
 
   @override
   Future<void> addAddress(String userId,
-          {required String title, required String text, double lat = 37.55, double lng = 45.07, String cityId = 'urmia', String plaque = ''}) =>
+          {required String title, required String text, double lat = 37.55, double lng = 45.07, String cityId = 'urmia', String plaque = '', String floor = '', String unit = ''}) =>
       _db.collection('users').doc(userId).collection('addresses').add({
-        'title': title, 'text': text, 'lat': lat, 'lng': lng, 'cityId': cityId, 'plaque': plaque, 'isDefault': false,
+        'title': title, 'text': text, 'lat': lat, 'lng': lng, 'cityId': cityId, 'plaque': plaque, 'floor': floor, 'unit': unit, 'isDefault': false,
       });
 
   @override

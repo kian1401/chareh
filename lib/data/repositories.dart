@@ -71,7 +71,7 @@ abstract class MiscRepository {
   Future<void> markAllRead(String userId);
   Future<List<AddressItem>> getAddresses(String userId);
   Future<void> addAddress(String userId,
-      {required String title, required String text, double lat = 37.55, double lng = 45.07, String cityId = 'urmia', String plaque = ''});
+      {required String title, required String text, double lat = 37.55, double lng = 45.07, String cityId = 'urmia', String plaque = '', String floor = '', String unit = ''});
   Stream<double> watchCommission(); // درصد کمیسیون پلتفرم
   Future<void> setCommission(double v);
 

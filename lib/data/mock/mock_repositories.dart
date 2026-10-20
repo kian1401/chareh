@@ -198,7 +198,7 @@ class MockBookingRepository implements BookingRepository {
       timeSlot: draft.slots.join('، '),
       candidateDays: draft.days.toList(),
       candidateSlots: draft.slots.toList(),
-      addressText: '${draft.address!.title} — ${draft.address!.text}',
+      addressText: '${draft.address!.title} — ${draft.address!.fullText}',
       addressLat: draft.address!.lat,
       addressLng: draft.address!.lng,
       totalPrice: draft.total,
@@ -391,9 +391,9 @@ class MockMiscRepository implements MiscRepository {
 
   @override
   Future<void> addAddress(String userId,
-      {required String title, required String text, double lat = 37.55, double lng = 45.07, String cityId = 'urmia', String plaque = ''}) async {
+      {required String title, required String text, double lat = 37.55, double lng = 45.07, String cityId = 'urmia', String plaque = '', String floor = '', String unit = ''}) async {
     final list = db.addresses.putIfAbsent(userId, () => []);
-    list.add(AddressItem(id: db.nextId('ad'), title: title, text: text, lat: lat, lng: lng, cityId: cityId, plaque: plaque));
+    list.add(AddressItem(id: db.nextId('ad'), title: title, text: text, lat: lat, lng: lng, cityId: cityId, plaque: plaque, floor: floor, unit: unit));
     db.emit();
   }
 
