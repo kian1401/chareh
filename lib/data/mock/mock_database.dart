@@ -123,7 +123,6 @@ class MockDb {
           u.walletBalance += settings.referralReward ~/ 2;
         }
       }
-    }
     return u;
   }
 
