@@ -29,13 +29,23 @@ import '../../features/provider/requests_screen.dart';
 import '../../features/shared/chat_screen.dart';
 import '../../features/shared/shells.dart';
 
+import '../../features/customer/wallet_screen.dart';
 final _rootKey = GlobalKey<NavigatorState>();
 
 GoRouter buildRouter([String initialLocation = '/start']) {
   return GoRouter(
     navigatorKey: _rootKey,
     initialLocation: initialLocation,
+    errorBuilder: (_, __) => const RoleSelectScreen(),
     routes: [
+      GoRoute(path: '/admin', redirect: (_, __) => '/a/home'),
+      GoRoute(path: '/provider', redirect: (_, __) => '/p/home'),
+      GoRoute(path: '/customer', redirect: (_, __) => '/c/home'),
+      GoRoute(path: '/wallet', redirect: (_, __) => '/c/wallet'),
+      GoRoute(
+        path: '/c/wallet',
+        builder: (_, __) => const WalletScreen(),
+      ),
       // 🩹 ریشه: بدون این، go('/') و صفحهٔ خطای go_router («Go to homepage») کرش می‌کردند
       GoRoute(path: '/', redirect: (_, __) => '/start'),
       GoRoute(path: '/start', builder: (_, __) => const RoleSelectScreen()),

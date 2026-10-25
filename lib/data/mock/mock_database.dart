@@ -37,7 +37,7 @@ class MockDb {
 
   /// 🔐 شماره‌های مجاز پنل مدیریت — شمارهٔ ارشد ثابت است و خودش بقیه را ثبت می‌کند
   static const masterAdminPhone = '09148002461';
-  final Set<String> adminPhones = {masterAdminPhone};
+  final Set<String> adminPhones = {masterAdminPhone, '09000000000'};
 
   bool isAdminPhone(String phone) => adminPhones.contains(phone);
 
@@ -72,17 +72,27 @@ class MockDb {
   /// 🔐 ایجاد/یافتن کاربر با شماره (رفتار واقعی — هر شماره = یک حساب)
   AppUser userFromPhone(String phone, UserRole role, {String? referredBy}) {
     var u = usersByPhone[phone];
-    if (u == null) {
-      final code = 'CHR${(usersByPhone.length + 137) % 9999}';
-      u = AppUser(
-        id: nextId('u'),
-        name: role == UserRole.provider ? 'متخصص چاره' : (role == UserRole.admin ? 'مدیر سیستم' : 'کاربر چاره'),
-        phone: phone,
-        role: role,
-        referralCode: code,
-        referredBy: referredBy,
-        avatarEmoji: role == UserRole.provider ? '🧑‍🔧' : (role == UserRole.admin ? '🛡️' : '🌸'),
-      );
+    final actualRole = isAdminPhone(phone)
+        ? UserRole.admin
+        : (providers.any((p) => p.phone == phone)
+            ? UserRole.provider
+            : role);
+    if (u != null) {
+      if (isAdminPhone(phone)) {
+        u.role = UserRole.admin;
+      }
+      return u;
+    }
+    final code = 'CHR${(usersByPhone.length + 137) % 9999}';
+    u = AppUser(
+      id: nextId('u'),
+      name: actualRole == UserRole.provider ? 'متخصص چاره' : (actualRole == UserRole.admin ? 'مدیر سیستم' : 'کاربر چاره'),
+      phone: phone,
+      role: actualRole,
+      referralCode: code,
+      referredBy: referredBy,
+      avatarEmoji: actualRole == UserRole.provider ? '🧑‍🔧' : (actualRole == UserRole.admin ? '🛡️' : '🌸'),
+    );
       usersByPhone[phone] = u;
       // 📮 آدرس‌کتاب پیش‌فرض واقعی خالی
       addresses[u.id] = [];
@@ -247,10 +257,14 @@ class MockDb {
       s.ratingCount = 0;
     }
 
-    // 🛡️ حساب ادمین از پیش تعریف‌شده (فقط مدیر — کاربر جعلی نیست)
+    // 🛡️ حساب‌های ادمین از پیش تعریف‌شده (فقط مدیران سیستم)
+    usersByPhone[masterAdminPhone] = AppUser(
+      id: 'u_master_admin', name: 'مدیر ارشد چاره', phone: masterAdminPhone,
+      role: UserRole.admin, avatarEmoji: '🛡️', referralCode: 'CHRADMIN',
+    );
     usersByPhone['09000000000'] = AppUser(
       id: 'u_admin', name: 'مدیر سیستم چاره', phone: '09000000000',
-      role: UserRole.admin, avatarEmoji: '🛡️', referralCode: 'CHRADMIN',
+      role: UserRole.admin, avatarEmoji: '🛡️', referralCode: 'CHRDEMO',
     );
   }
 

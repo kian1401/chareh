@@ -94,49 +94,53 @@ class CustomerProfileScreen extends StatelessWidget {
           // کیف پول
           if (user != null)
             Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    const Text('💳', style: TextStyle(fontSize: 26)),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'کیف پول',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 13,
-                            ),
-                          ),
-                          PriceLabel(user.walletBalance),
-                        ],
-                      ),
-                    ),
-                    if (RepoHub.instance.isMock)
-                      FilledButton.tonal(
-                        onPressed: () async {
-                          // 💳 شارژ واقعی‌نما با پلهٔ بونس تنظیمات ادمین
-                          final r = await RepoHub.instance.misc.chargeWallet(
-                            user.id,
-                            500000,
-                          );
-                          auth.refresh();
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  '${faPrice(r.total)} شارژ شد + ${faPrice(r.bonus)} هدیه 🎁',
-                                ),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: () => context.push('/c/wallet'),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      const Text('💳', style: TextStyle(fontSize: 26)),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'کیف پول (مشاهده و تراکنش‌ها ›)',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 13,
                               ),
-                            );
-                          }
-                        },
-                        child: const Text('شارژ +'),
+                            ),
+                            PriceLabel(user.walletBalance),
+                          ],
+                        ),
                       ),
-                  ],
+                      if (RepoHub.instance.isMock)
+                        FilledButton.tonal(
+                          onPressed: () async {
+                            // 💳 شارژ واقعی‌نما با پلهٔ بونس تنظیمات ادمین
+                            final r = await RepoHub.instance.misc.chargeWallet(
+                              user.id,
+                              500000,
+                            );
+                            auth.refresh();
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    '${faPrice(r.total)} شارژ شد + ${faPrice(r.bonus)} هدیه 🎁',
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          child: const Text('شارژ +'),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),

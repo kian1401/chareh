@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/utils/persian_utils.dart';
+import '../../core/utils/persian_utils.dart';
 import '../../data/models.dart';
 import '../../data/service_locator.dart';
 import '../../shared/ui.dart';
@@ -86,7 +86,7 @@ class _WalletScreenState extends State<WalletScreen> {
                         Chip(
                           backgroundColor: Colors.white.withValues(alpha: 0.2),
                           label: Text(
-                            '📞 ${toFaDigits(user.phone.substring(0, 7))}***',
+                            '📞 ${toFaDigits(user.phone.length >= 7 ? user.phone.substring(0, 7) : user.phone)}***',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,

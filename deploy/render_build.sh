@@ -10,6 +10,7 @@ if ! command -v flutter >/dev/null 2>&1; then
   export PATH="$PWD/flutter/bin:$PATH"
 fi
 
+git config --global --add safe.directory "*" >/dev/null 2>&1 || true
 flutter config --enable-web >/dev/null 2>&1 || true
 flutter pub get
 flutter build web --release --no-tree-shake-icons --no-wasm-dry-run

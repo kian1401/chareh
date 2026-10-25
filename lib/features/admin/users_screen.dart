@@ -97,7 +97,7 @@ class _UsersList extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        toFaDigits(p.phone.substring(0, 11)),
+                        toFaDigits(p.phone),
                         style: const TextStyle(
                           fontSize: 10.5,
                           color: Color(0xFF9CA3AF),

@@ -95,8 +95,8 @@ class _AuthScreenState extends State<AuthScreen> {
         if (m.canPop()) {
           m.pop();
         } else {
-          final p = context.read<AuthState>().portal;
-          m.go(switch (p) {
+          final role = context.read<AuthState>().user?.role ?? context.read<AuthState>().portal;
+          m.go(switch (role) {
             UserRole.admin => '/a/home',
             UserRole.provider => '/p/home',
             _ => '/c/home',

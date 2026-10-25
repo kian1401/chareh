@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/utils/persian_utils.dart';
+import '../../core/utils/persian_utils.dart';
 import '../../data/models.dart';
 import '../../data/service_locator.dart';
 import '../../shared/ui.dart';

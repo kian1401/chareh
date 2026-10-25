@@ -6,7 +6,7 @@ import '../auth/auth_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../../core/utils/persian_utils.dart';
+import '../../core/utils/persian_utils.dart';
 import '../../data/models.dart';
 import '../../data/service_locator.dart';
 import '../../shared/ui.dart';

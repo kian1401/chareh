@@ -599,7 +599,7 @@ class Booking {
   /// [viewerIsProvider] = آیا بیننده متخصص است (فقط او منتظر ماسک است)
   String maskedContact([bool viewerIsProvider = false]) {
     final p = customerPhone;
-    if (p.length < 7) return p;
+    if (p.length < 11) return p;
     if (contactRevealed || !viewerIsProvider) return p;
     return '${p.substring(0, 4)}⁎⁎⁎⁎${p.substring(7)}';
   }

@@ -148,7 +148,7 @@ class _AdminServicesScreenState extends State<AdminServicesScreen>
     );
     if (ok == true) {
       final updated = Category(
-        id: c?.id ?? RepoHub.instance.catalog.hashCode.toString(),
+        id: c?.id ?? 'cat_${DateTime.now().millisecondsSinceEpoch}',
         title: titleCtrl.text.trim(),
         emoji: emojiCtrl.text.trim().isEmpty ? '🧰' : emojiCtrl.text.trim(),
         imageUrl: imgCtrl.text.trim(),

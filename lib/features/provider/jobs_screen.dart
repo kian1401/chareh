@@ -16,7 +16,7 @@ class JobsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthState>();
-    if (auth.user?.role != UserRole.provider) {
+    if (auth.effectiveProviderId == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('کارها')),
         body: const EmptyState(
